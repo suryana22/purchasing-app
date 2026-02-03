@@ -5,6 +5,8 @@
 !/purchasing-app/
 !/purchasing-service/
 !/master-data-service/
+!/install_server.sh
+!/README_DEPLOY.md
 !.gitignore
 
 # Standard Ignores inside the allowed folders
