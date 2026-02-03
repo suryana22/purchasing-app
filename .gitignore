@@ -1,0 +1,23 @@
+# Ignore everything by default
+/*
+
+# Except these folders and files
+!/purchasing-app/
+!/purchasing-service/
+!/master-data-service/
+!.gitignore
+
+# Standard Ignores inside the allowed folders
+**/node_modules/
+**/.next/
+**/dist/
+**/.env
+**/.env.*
+**/npm-debug.log*
+**/*.db
+**/*.sqlite
+**/.DS_Store
+**/Thumbs.db
+**/coverage/
+**/out/
+**/build/

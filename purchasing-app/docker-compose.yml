@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: purchasing_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Suryana@130221
+      POSTGRES_DB: purchasing_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - purchasing_network
+
+  master-data-service:
+    build: ../master-data-service
+    container_name: master-data-service
+    restart: always
+    ports:
+      - "4001:4001"
+    volumes:
+      - ../master-data-service:/app
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - PORT=4001
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - postgres
+    networks:
+      - purchasing_network
+
+  purchasing-service:
+    build: ../purchasing-service
+    container_name: purchasing-service
+    restart: always
+    ports:
+      - "4002:4002"
+    volumes:
+      - ../purchasing-service:/app
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - PORT=4002
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - postgres
+    networks:
+      - purchasing_network
+
+  frontend-app:
+    build: ./frontend
+    container_name: frontend-app
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NEXT_PUBLIC_MASTER_DATA_API=http://localhost:4001
+      - NEXT_PUBLIC_PURCHASING_API=http://localhost:4002
+    depends_on:
+      - master-data-service
+      - purchasing-service
+    networks:
+      - purchasing_network
+
+networks:
+  purchasing_network:
+    driver: bridge
+
+volumes:
+  postgres_data:

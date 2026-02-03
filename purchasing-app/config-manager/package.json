@@ -1,0 +1,13 @@
+{
+    "name": "config-manager",
+    "version": "1.0.0",
+    "description": "Simple tool to manage purchasing app environment",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "express": "^4.18.2",
+        "dotenv": "^16.3.1"
+    }
+}
