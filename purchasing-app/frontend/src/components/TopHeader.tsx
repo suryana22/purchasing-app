@@ -39,7 +39,7 @@ export default function TopHeader() {
         if (!token) return;
 
         try {
-            const res = await fetch('http://localhost:4002/api/notifications');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_PURCHASING_API || 'http://localhost:4002'}/api/notifications`);
             if (res.ok) {
                 const data: Notification[] = await res.json();
                 // Filter relevant notifications
@@ -87,7 +87,7 @@ export default function TopHeader() {
         // Mark as read in backend
         if (!n.is_read) {
             try {
-                await fetch(`http://localhost:4002/api/notifications/${n.id}/read`, {
+                await fetch(`${process.env.NEXT_PUBLIC_PURCHASING_API || 'http://localhost:4002'}/api/notifications/${n.id}/read`, {
                     method: 'PUT'
                 });
                 fetchNotifications();
@@ -113,7 +113,7 @@ export default function TopHeader() {
 
     const handleMarkAllRead = async () => {
         try {
-            const res = await fetch('http://localhost:4002/api/notifications/read-all', {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_PURCHASING_API || 'http://localhost:4002'}/api/notifications/read-all`, {
                 method: 'PUT'
             });
             if (res.ok) fetchNotifications();
@@ -125,7 +125,7 @@ export default function TopHeader() {
     const handleToggleRead = async (e: React.MouseEvent, n: Notification) => {
         e.stopPropagation(); // Don't trigger navigation
         try {
-            const res = await fetch(`http://localhost:4002/api/notifications/${n.id}/read`, {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_PURCHASING_API || 'http://localhost:4002'}/api/notifications/${n.id}/read`, {
                 method: 'PUT'
             });
             if (res.ok) fetchNotifications();

@@ -57,8 +57,8 @@ export default function RolesPage() {
     const fetchData = async () => {
         try {
             const [rolesRes, permsRes] = await Promise.all([
-                authenticatedFetch('http://localhost:4001/api/roles'),
-                authenticatedFetch('http://localhost:4001/api/permissions')
+                authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/roles`),
+                authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/permissions`)
             ]);
 
             if (rolesRes.ok && permsRes.ok) {
@@ -91,8 +91,8 @@ export default function RolesPage() {
         setSubmitting(true);
         try {
             const url = editingId
-                ? `http://localhost:4001/api/roles/${editingId}`
-                : 'http://localhost:4001/api/roles';
+                ? `${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/roles/${editingId}`
+                : `${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/roles`;
 
             const method = editingId ? 'PUT' : 'POST';
 
@@ -131,7 +131,7 @@ export default function RolesPage() {
         if (!confirm('Yakin ingin menghapus role ini? User yang menggunakan role ini mungkin kehilangan akses.')) return;
 
         try {
-            const response = await authenticatedFetch(`http://localhost:4001/api/roles/${id}`, {
+            const response = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/roles/${id}`, {
                 method: 'DELETE'
             });
             if (response.ok) {

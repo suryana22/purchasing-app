@@ -160,11 +160,11 @@ export default function OrdersPage() {
 
         try {
             const [deptRes, partsRes, itemsRes, ordersRes, itemTypesRes] = await Promise.all([
-                authenticatedFetch('http://localhost:4001/api/departments'),
-                authenticatedFetch('http://localhost:4001/api/partners'),
-                authenticatedFetch('http://localhost:4001/api/items'),
-                authenticatedFetch('http://localhost:4002/api/orders'),
-                authenticatedFetch('http://localhost:4001/api/item-types')
+                authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/departments`),
+                authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/partners`),
+                authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/items`),
+                authenticatedFetch(`${process.env.NEXT_PUBLIC_PURCHASING_API || 'http://localhost:4002'}/api/orders`),
+                authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/item-types`)
             ]);
 
             if (!deptRes.ok || !partsRes.ok || !itemsRes.ok || !ordersRes.ok || !itemTypesRes.ok) {
@@ -192,7 +192,7 @@ export default function OrdersPage() {
             setItemTypes(types);
 
             // Fetch Companies
-            const compRes = await authenticatedFetch('http://localhost:4001/api/companies');
+            const compRes = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/companies`);
             if (compRes.ok) {
                 const compData = await compRes.json();
                 setCompanies(compData);
@@ -410,7 +410,7 @@ export default function OrdersPage() {
     const handleDeleteOrder = async (id: number) => {
         if (!confirm('Apakah Anda yakin ingin menghapus pemesanan ini?')) return;
         try {
-            const response = await authenticatedFetch(`http://localhost:4002/api/orders/${id}`, {
+            const response = await authenticatedFetch(`${process.env.NEXT_PUBLIC_PURCHASING_API || 'http://localhost:4002'}/api/orders/${id}`, {
                 method: 'DELETE'
             });
             if (response.ok) {
@@ -485,7 +485,7 @@ export default function OrdersPage() {
                 asset_document: analysisForm.details[0].asset_document
             };
 
-            const response = await authenticatedFetch('http://localhost:4002/api/order-analyses', {
+            const response = await authenticatedFetch(`${process.env.NEXT_PUBLIC_PURCHASING_API || 'http://localhost:4002'}/api/order-analyses`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -536,7 +536,7 @@ export default function OrdersPage() {
         const confirmMsg = status === 'APPROVED' ? 'menyetujui' : status === 'REJECTED' ? 'menolak' : 'menunda';
         if (!confirm(`Apakah Anda yakin ingin ${confirmMsg} pemesanan ini?`)) return;
         try {
-            const response = await authenticatedFetch(`http://localhost:4002/api/orders/${id}/approve`, {
+            const response = await authenticatedFetch(`${process.env.NEXT_PUBLIC_PURCHASING_API || 'http://localhost:4002'}/api/orders/${id}/approve`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status })
@@ -581,8 +581,8 @@ export default function OrdersPage() {
             };
 
             const url = modalMode === 'edit' && selectedOrderId
-                ? `http://localhost:4002/api/orders/${selectedOrderId}`
-                : 'http://localhost:4002/api/orders';
+                ? `${process.env.NEXT_PUBLIC_PURCHASING_API || 'http://localhost:4002'}/api/orders/${selectedOrderId}`
+                : `${process.env.NEXT_PUBLIC_PURCHASING_API || 'http://localhost:4002'}/api/orders`;
 
             const method = modalMode === 'edit' ? 'PUT' : 'POST';
 
@@ -590,7 +590,7 @@ export default function OrdersPage() {
             if (modalMode === 'special') {
                 for (const item of items) {
                     try {
-                        await authenticatedFetch('http://localhost:4001/api/special-items', {
+                        await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/special-items`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({

@@ -53,7 +53,7 @@ export default function PartnersPage() {
         if (!token) return;
 
         try {
-            const res = await authenticatedFetch('http://localhost:4001/api/partners');
+            const res = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/partners`);
             if (res.ok) {
                 const data = await res.json();
                 setPartners(data);
@@ -96,7 +96,7 @@ export default function PartnersPage() {
         if (!deletingId) return;
         setSubmitting(true);
         try {
-            const res = await authenticatedFetch(`http://localhost:4001/api/partners/${deletingId}`, {
+            const res = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/partners/${deletingId}`, {
                 method: 'DELETE',
             });
 
@@ -120,8 +120,8 @@ export default function PartnersPage() {
         setSubmitting(true);
 
         const url = editingId
-            ? `http://localhost:4001/api/partners/${editingId}`
-            : 'http://localhost:4001/api/partners';
+            ? `${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/partners/${editingId}`
+            : `${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/partners`;
 
         const method = editingId ? 'PUT' : 'POST';
 

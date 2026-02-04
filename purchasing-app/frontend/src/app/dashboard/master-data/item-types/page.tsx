@@ -43,7 +43,7 @@ export default function ItemTypesPage() {
         if (!token) return;
 
         try {
-            const res = await authenticatedFetch('http://localhost:4001/api/item-types');
+            const res = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/item-types`);
             if (res.ok) {
                 const data = await res.json();
                 setItemTypes(data);
@@ -84,7 +84,7 @@ export default function ItemTypesPage() {
         if (!deletingId) return;
         setSubmitting(true);
         try {
-            const res = await authenticatedFetch(`http://localhost:4001/api/item-types/${deletingId}`, {
+            const res = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/item-types/${deletingId}`, {
                 method: 'DELETE',
             });
 
@@ -108,8 +108,8 @@ export default function ItemTypesPage() {
         setSubmitting(true);
 
         const url = editingId
-            ? `http://localhost:4001/api/item-types/${editingId}`
-            : 'http://localhost:4001/api/item-types';
+            ? `${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/item-types/${editingId}`
+            : `${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/item-types`;
 
         const method = editingId ? 'PUT' : 'POST';
 

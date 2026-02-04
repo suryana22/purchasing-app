@@ -78,7 +78,7 @@ export default function ItemsPage() {
         if (!token) return;
 
         try {
-            const res = await authenticatedFetch('http://localhost:4001/api/items');
+            const res = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/items`);
             if (res.ok) {
                 const data = await res.json();
                 setItems(data);
@@ -95,7 +95,7 @@ export default function ItemsPage() {
         if (!token) return;
 
         try {
-            const res = await authenticatedFetch('http://localhost:4001/api/partners');
+            const res = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/partners`);
             if (res.ok) {
                 const data = await res.json();
                 setPartners(data);
@@ -110,7 +110,7 @@ export default function ItemsPage() {
         if (!token) return;
 
         try {
-            const res = await authenticatedFetch('http://localhost:4001/api/item-types');
+            const res = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/item-types`);
             if (res.ok) setItemTypes(await res.json());
         } catch (error) {
             console.error('Failed to fetch item types:', error);
@@ -184,7 +184,7 @@ export default function ItemsPage() {
         if (!deletingCode) return;
         setSubmitting(true);
         try {
-            const res = await authenticatedFetch(`http://localhost:4001/api/items/${deletingCode}`, {
+            const res = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/items/${deletingCode}`, {
                 method: 'DELETE',
             });
 
@@ -208,8 +208,8 @@ export default function ItemsPage() {
         setSubmitting(true);
 
         const url = editingCode
-            ? `http://localhost:4001/api/items/${editingCode}`
-            : 'http://localhost:4001/api/items';
+            ? `${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/items/${editingCode}`
+            : `${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/items`;
 
         const method = editingCode ? 'PUT' : 'POST';
 

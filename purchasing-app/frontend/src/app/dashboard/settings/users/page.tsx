@@ -61,8 +61,8 @@ export default function UsersPage() {
     const fetchData = async () => {
         try {
             const [usersRes, rolesRes] = await Promise.all([
-                authenticatedFetch('http://localhost:4001/api/users'),
-                authenticatedFetch('http://localhost:4001/api/roles')
+                authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/users`),
+                authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/roles`)
             ]);
 
             if (usersRes.ok && rolesRes.ok) {
@@ -83,8 +83,8 @@ export default function UsersPage() {
         setSubmitting(true);
         try {
             const url = editingId
-                ? `http://localhost:4001/api/users/${editingId}`
-                : 'http://localhost:4001/api/users';
+                ? `${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/users/${editingId}`
+                : `${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/users`;
 
             const method = editingId ? 'PUT' : 'POST';
 
@@ -130,7 +130,7 @@ export default function UsersPage() {
         if (!confirm('Yakin ingin menghapus pengguna ini?')) return;
 
         try {
-            const response = await authenticatedFetch(`http://localhost:4001/api/users/${id}`, {
+            const response = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/users/${id}`, {
                 method: 'DELETE'
             });
             if (response.ok) {

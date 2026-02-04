@@ -61,7 +61,7 @@ export default function CompaniesPage() {
 
     const fetchCompanies = async () => {
         try {
-            const response = await authenticatedFetch('http://localhost:4001/api/companies');
+            const response = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/companies`);
             if (response.ok) {
                 const data = await response.json();
                 setCompanies(data);
@@ -89,8 +89,8 @@ export default function CompaniesPage() {
         setSubmitting(true);
         try {
             const url = editingId
-                ? `http://localhost:4001/api/companies/${editingId}`
-                : 'http://localhost:4001/api/companies';
+                ? `${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/companies/${editingId}`
+                : `${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/companies`;
 
             const method = editingId ? 'PUT' : 'POST';
 
@@ -137,7 +137,7 @@ export default function CompaniesPage() {
         if (!deletingId) return;
         setSubmitting(true);
         try {
-            const response = await authenticatedFetch(`http://localhost:4001/api/companies/${deletingId}`, {
+            const response = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/companies/${deletingId}`, {
                 method: 'DELETE'
             });
             if (response.ok) {

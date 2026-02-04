@@ -44,7 +44,7 @@ export default function DepartmentsPage() {
         if (!token) return;
 
         try {
-            const res = await authenticatedFetch('http://localhost:4001/api/departments');
+            const res = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/departments`);
             if (res.ok) {
                 const data = await res.json();
                 setDepartments(data);
@@ -61,7 +61,7 @@ export default function DepartmentsPage() {
         if (!token) return;
 
         try {
-            const res = await authenticatedFetch('http://localhost:4001/api/companies');
+            const res = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/companies`);
             if (res.ok) {
                 const data = await res.json();
                 setCompanies(data);
@@ -101,7 +101,7 @@ export default function DepartmentsPage() {
         if (!deletingId) return;
         setSubmitting(true);
         try {
-            const res = await authenticatedFetch(`http://localhost:4001/api/departments/${deletingId}`, {
+            const res = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/departments/${deletingId}`, {
                 method: 'DELETE',
             });
 
@@ -125,8 +125,8 @@ export default function DepartmentsPage() {
         setSubmitting(true);
 
         const url = editingId
-            ? `http://localhost:4001/api/departments/${editingId}`
-            : 'http://localhost:4001/api/departments';
+            ? `${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/departments/${editingId}`
+            : `${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/departments`;
 
         const method = editingId ? 'PUT' : 'POST';
 

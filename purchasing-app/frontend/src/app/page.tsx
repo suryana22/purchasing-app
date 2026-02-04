@@ -17,7 +17,7 @@ export default function LoginPage() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:4001/api/auth/login', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

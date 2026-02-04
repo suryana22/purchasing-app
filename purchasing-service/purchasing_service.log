@@ -7,3 +7,20 @@
 [33m[nodemon] watching path(s): *.*[39m
 [33m[nodemon] watching extensions: js,mjs,cjs,json[39m
 [32m[nodemon] starting `node src/index.js`[39m
+[32m[nodemon] restarting child process[39m
+[32m[nodemon] starting `node src/index.js`[39m
+[32m[nodemon] restarting child process[39m
+[32m[nodemon] restarting due to changes...[39m
+[32m[nodemon] restarting due to changes...[39m
+Node.js[127622]: ../src/node.cc:701:void node::ResetStdio(): Assertion `!(err != 0) || (err == -1 && (*__errno_location ()) == 1)' failed.
+ 1: 0x7b82d3c0633c node::Abort() [/lib/x86_64-linux-gnu/libnode.so.109]
+ 2: 0x7b82d3c063cb  [/lib/x86_64-linux-gnu/libnode.so.109]
+ 3: 0x7b82d3bb88c6  [/lib/x86_64-linux-gnu/libnode.so.109]
+ 4: 0x7b82d2e47a76  [/lib/x86_64-linux-gnu/libc.so.6]
+ 5: 0x7b82d2e47bbe  [/lib/x86_64-linux-gnu/libc.so.6]
+ 6: 0x7b82d3b2dc5d node::DefaultProcessExitHandler(node::Environment*, int) [/lib/x86_64-linux-gnu/libnode.so.109]
+ 7: 0x7b82d3b7e729 node::Environment::Exit(int) [/lib/x86_64-linux-gnu/libnode.so.109]
+ 8: 0x7b82d405138e v8::internal::FunctionCallbackArguments::Call(v8::internal::CallHandlerInfo) [/lib/x86_64-linux-gnu/libnode.so.109]
+ 9: 0x7b82d40519b1  [/lib/x86_64-linux-gnu/libnode.so.109]
+10: 0x7b82d40522af v8::internal::Builtin_HandleApiCall(int, unsigned long*, v8::internal::Isolate*) [/lib/x86_64-linux-gnu/libnode.so.109]
+11: 0x7b82d3efc2f9  [/lib/x86_64-linux-gnu/libnode.so.109]

@@ -39,7 +39,7 @@ export default function LogsPage() {
 
     const fetchLogs = async () => {
         try {
-            const response = await authenticatedFetch('http://localhost:4001/api/logs');
+            const response = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/logs`);
             if (response.ok) {
                 const data = await response.json();
                 setLogs(data);
