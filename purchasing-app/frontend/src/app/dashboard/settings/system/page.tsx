@@ -11,19 +11,14 @@ import {
     Save,
     ChevronLeft,
     ArrowRight,
-    Search,
     Lock
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
 
-const API_BASE = process.env.NEXT_PUBLIC_MASTER_DATA_API || '';
-
-type TabType = 'main' | 'manpro' | 'database';
-
 export default function SystemSettings() {
     const { authenticatedFetch } = useAuth();
-    const [activeTab, setActiveTab] = useState<TabType>('main');
+    const [activeTab, setActiveTab] = useState<'main' | 'manpro' | 'database'>('main');
     const [loading, setLoading] = useState(false);
     const [downloading, setDownloading] = useState(false);
     const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
@@ -33,6 +28,32 @@ export default function SystemSettings() {
         manpro_password: ''
     });
     const [saving, setSaving] = useState(false);
+    
+    // Resolve API URL dynamically
+    const getApiUrl = (endpoint: string) => {
+        let base = process.env.NEXT_PUBLIC_MASTER_DATA_API || '';
+        
+        if (typeof window !== 'undefined') {
+            // Priority 1: Current browser host (if it matches common patterns)
+            const host = window.location.hostname;
+            const protocol = window.location.protocol;
+            
+            // If the current host is an IP or localhost, prioritize it over hardcoded env
+            if (host === 'localhost' || host === '127.0.0.1' || host.startsWith('10.') || host.startsWith('192.')) {
+                base = `${protocol}//${host}:4001`;
+            }
+        }
+        
+        // Final fallback if still empty
+        if (!base) base = 'http://localhost:4001';
+        
+        // Normalize: remove trailing /api if it exists to avoid duplication
+        const normalizedBase = base.replace(/\/api\/?$/, '').replace(/\/$/, '');
+        
+        const finalUrl = `${normalizedBase}/api${endpoint}`;
+        console.log(`[SystemSettings] Generated URL for ${endpoint}: `, finalUrl);
+        return finalUrl;
+    };
 
     useEffect(() => {
         fetchSettings();
@@ -41,7 +62,8 @@ export default function SystemSettings() {
     const fetchSettings = async () => {
         try {
             setLoading(true);
-            const response = await authenticatedFetch(`${API_BASE}/api/settings`);
+            const url = getApiUrl('/settings');
+            const response = await authenticatedFetch(url);
             if (response.ok) {
                 const data = await response.json();
                 const newSettings = { ...settings };
@@ -63,8 +85,10 @@ export default function SystemSettings() {
         e.preventDefault();
         try {
             setSaving(true);
+            const url = getApiUrl('/settings');
             const settingsArray = Object.entries(settings).map(([key, value]) => ({ key, value }));
-            const response = await authenticatedFetch(`${API_BASE}/api/settings`, {
+            
+            const response = await authenticatedFetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ settings: settingsArray })
@@ -74,11 +98,12 @@ export default function SystemSettings() {
                 showMessage('Konfigurasi Manpro berhasil disimpan', 'success');
                 setTimeout(() => setActiveTab('main'), 1500);
             } else {
-                showMessage('Gagal menyimpan konfigurasi', 'error');
+                const errorData = await response.json().catch(() => ({}));
+                showMessage(errorData.error || `Gagal menyimpan (Status: ${response.status})`, 'error');
             }
         } catch (error) {
             console.error('Save settings error:', error);
-            showMessage('Terjadi kesalahan koneksi', 'error');
+            showMessage('Terjadi kesalahan koneksi ke server API', 'error');
         } finally {
             setSaving(false);
         }
@@ -86,37 +111,34 @@ export default function SystemSettings() {
 
     const showMessage = (text: string, type: 'success' | 'error') => {
         setMessage({ text, type });
-        setTimeout(() => setMessage(null), 3000);
+        setTimeout(() => setMessage(null), 3500);
     };
 
     const handleDownloadBackup = async () => {
         try {
             setDownloading(true);
-            const response = await authenticatedFetch(`${API_BASE}/api/database/backup`);
-
+            const url = getApiUrl('/database/backup');
+            const response = await authenticatedFetch(url);
             if (response.ok) {
                 const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
+                const blobUrl = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
-                a.href = url;
+                a.href = blobUrl;
                 a.download = `backup-${new Date().toISOString().split('T')[0]}.sql`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
+                document.body.appendChild(a); a.click();
+                window.URL.revokeObjectURL(blobUrl); document.body.removeChild(a);
                 showMessage('Backup database berhasil diunduh', 'success');
             } else {
                 showMessage('Gagal mengunduh backup database', 'error');
             }
         } catch (error) {
-            console.error('Download error:', error);
             showMessage('Terjadi kesalahan koneksi', 'error');
         } finally {
             setDownloading(false);
         }
     };
 
-    if (loading) {
+    if (loading && activeTab === 'main') {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <RefreshCcw className="w-8 h-8 text-blue-600 animate-spin" />
@@ -127,7 +149,7 @@ export default function SystemSettings() {
     return (
         <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 text-left">
                 <div className="space-y-1">
                     <div className="flex items-center gap-2 text-slate-500 mb-2">
                         {activeTab === 'main' ? (
@@ -149,11 +171,6 @@ export default function SystemSettings() {
                         {activeTab === 'manpro' && 'Integrasi Manpro'}
                         {activeTab === 'database' && 'Manajemen Database'}
                     </h1>
-                    <p className="text-slate-500 font-bold uppercase text-xs tracking-widest italic opacity-70">
-                        {activeTab === 'main' && 'Pusat kendali infrastruktur dan keamanan data aplikasi'}
-                        {activeTab === 'manpro' && 'Pengaturan kredensial robot tracking otomatis'}
-                        {activeTab === 'database' && 'Pemeliharaan data dan cadangan sistem'}
-                    </p>
                 </div>
             </div>
 
@@ -167,58 +184,37 @@ export default function SystemSettings() {
 
             {activeTab === 'main' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in zoom-in duration-500">
-                    {/* Manpro Card */}
-                    <button
-                        onClick={() => setActiveTab('manpro')}
-                        className="group relative overflow-hidden bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-2 hover:border-blue-400 transition-all duration-500 text-left"
-                    >
+                    <button onClick={() => setActiveTab('manpro')} className="group relative overflow-hidden bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-2 hover:border-blue-400 transition-all duration-500 text-left">
                         <div className="absolute -right-8 -top-8 w-32 h-32 bg-blue-600 rounded-full opacity-0 group-hover:opacity-5 transition-all duration-700 scale-50 group-hover:scale-150" />
-                        
                         <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-inner">
                             <Server className="w-8 h-8" />
                         </div>
-                        
                         <h3 className="text-xl font-black text-slate-900 group-hover:text-blue-700 transition-colors uppercase tracking-tight">Integrasi Manpro</h3>
                         <p className="text-slate-500 mt-2 text-sm font-bold uppercase tracking-wide opacity-70 italic line-clamp-2 leading-relaxed">Kelola URL, User, dan Password untuk robot pelacakan otomatis.</p>
-                        
                         <div className="mt-6 flex items-center text-blue-600 text-[10px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all">
                             Konfigurasi <ArrowRight className="w-3.5 h-3.5 ml-2" />
                         </div>
                     </button>
 
-                    {/* Database Card */}
-                    <button
-                        onClick={() => setActiveTab('database')}
-                        className="group relative overflow-hidden bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:shadow-emerald-900/10 hover:-translate-y-2 hover:border-emerald-400 transition-all duration-500 text-left"
-                    >
+                    <button onClick={() => setActiveTab('database')} className="group relative overflow-hidden bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:shadow-emerald-900/10 hover:-translate-y-2 hover:border-emerald-400 transition-all duration-500 text-left">
                         <div className="absolute -right-8 -top-8 w-32 h-32 bg-emerald-600 rounded-full opacity-0 group-hover:opacity-5 transition-all duration-700 scale-50 group-hover:scale-150" />
-                        
                         <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-500 shadow-inner">
                             <Database className="w-8 h-8" />
                         </div>
-                        
                         <h3 className="text-xl font-black text-slate-900 group-hover:text-emerald-700 transition-colors uppercase tracking-tight">Database & Backup</h3>
                         <p className="text-slate-500 mt-2 text-sm font-bold uppercase tracking-wide opacity-70 italic line-clamp-2 leading-relaxed">Ekspor data sistem (.sql) dan pemeliharaan struktur tabel.</p>
-                        
                         <div className="mt-6 flex items-center text-emerald-600 text-[10px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all">
                             Buka Alat <ArrowRight className="w-3.5 h-3.5 ml-2" />
                         </div>
                     </button>
 
-                    {/* Logs Card */}
-                    <Link
-                        href="/dashboard/settings/logs"
-                        className="group relative overflow-hidden bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-sm hover:shadow-2xl hover:shadow-slate-900/50 hover:-translate-y-2 hover:border-slate-600 transition-all duration-500 text-left"
-                    >
+                    <Link href="/dashboard/settings/logs" className="group relative overflow-hidden bg-slate-900 p-8 rounded-3xl border border-slate-800 shadow-sm hover:shadow-2xl hover:shadow-slate-900/50 hover:-translate-y-2 hover:border-slate-600 transition-all duration-500 text-left">
                         <div className="absolute -right-8 -top-8 w-32 h-32 bg-blue-400 rounded-full opacity-5 transition-all duration-700 scale-150" />
-                        
                         <div className="w-16 h-16 bg-white/10 text-white rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-600 transition-all duration-500 border border-white/10 backdrop-blur-sm">
                             <Lock className="w-8 h-8" />
                         </div>
-                        
                         <h3 className="text-xl font-black text-white uppercase tracking-tight">Audit Trail</h3>
                         <p className="text-slate-400 mt-2 text-sm font-bold uppercase tracking-wide opacity-70 italic line-clamp-2 leading-relaxed">Catatan riwayat aktivitas pengguna untuk audit keamanan.</p>
-                        
                         <div className="mt-6 flex items-center text-blue-400 text-[10px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all">
                             Lihat Log <ArrowRight className="w-3.5 h-3.5 ml-2" />
                         </div>
@@ -326,7 +322,7 @@ export default function SystemSettings() {
                         <div className="w-full max-w-lg p-6 bg-slate-50 rounded-3xl border border-slate-200 flex items-center justify-between">
                             <div className="flex items-center gap-4 text-left">
                                 <div className="p-3 bg-white rounded-xl shadow-sm">
-                                    <FileText className="w-5 h-5 text-slate-400" />
+                                    <Database className="w-5 h-5 text-slate-400" />
                                 </div>
                                 <div>
                                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Format Standar</p>
@@ -353,7 +349,3 @@ export default function SystemSettings() {
         </div>
     );
 }
-
-const FileText = ({ className }: { className?: string }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
-);
