@@ -47,6 +47,7 @@ const menuItems: MenuItem[] = [
         permission: 'orders.view',
         children: [
             { name: 'Pemesanan Barang', path: '/dashboard/purchasing/orders', permission: 'orders.view' },
+            { name: 'Lacak Pesanan', path: '/dashboard/purchasing/tracking', permission: 'orders.view' },
         ],
     },
 ];
