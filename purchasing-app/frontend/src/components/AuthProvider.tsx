@@ -135,8 +135,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             headers
         });
 
-        if (response.status === 401 || response.status === 403) {
+        if (response.status === 401) {
             logout();
+        } else if (response.status === 403) {
+            const data = await response.clone().json();
+            alert(data.error || 'Access Denied: You do not have permission to perform this action.');
         }
 
         return response;

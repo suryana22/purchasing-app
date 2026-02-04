@@ -102,10 +102,12 @@ sequelize.sync({ alter: true })
 
         // Assign basic permissions to staff (Only view/create/edit for some modules)
         const staffPermNames = [
-            'departments.view', 'partners.view', 'items.view',
+            'departments.view', 'departments.create', 'departments.edit',
+            'partners.view', 'partners.create', 'partners.edit',
+            'items.view', 'items.create', 'items.edit',
             'orders.view', 'orders.create', 'orders.edit', 'orders.special',
             'companies.view', 'special_items.view', 'special_items.create',
-            'item_types.view'
+            'item_types.view', 'item_types.create', 'item_types.edit'
         ];
         const staffPerms = await Permission.findAll({
             where: { name: staffPermNames }
