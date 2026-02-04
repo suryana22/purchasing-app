@@ -56,6 +56,10 @@ const Order = sequelize.define('Order', {
     approval_date: {
         type: DataTypes.DATE,
         allowNull: true,
+    },
+    manpro_url: {
+        type: DataTypes.TEXT,
+        allowNull: true,
     }
 }, {
     timestamps: true,

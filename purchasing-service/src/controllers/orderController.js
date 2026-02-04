@@ -112,16 +112,19 @@ module.exports = {
             }
 
             // Lock editing if not draft, unless administrator
+            // Special case: allow updating manpro_url even if not DRAFT
             const userRole = req.user.role ? req.user.role.toLowerCase() : '';
-            if (targetOrder.status !== 'DRAFT' && userRole !== 'administrator') {
+            const isJustManproUrl = Object.keys(orderData).length === 1 && orderData.manpro_url !== undefined;
+
+            if (targetOrder.status !== 'DRAFT' && userRole !== 'administrator' && !isJustManproUrl) {
                 return res.status(400).json({ error: `Cannot edit order because it is already ${targetOrder.status}` });
             }
 
-            const [updatedRows] = await Order.update(orderData, {
+            await Order.update(orderData, {
                 where: { id: req.params.id }
             });
 
-            if (items && items.length > 0) {
+            if (items && items.length > 0 && (targetOrder.status === 'DRAFT' || userRole === 'administrator')) {
                 // For simplicity, we delete existing items and recreate
                 await OrderItem.destroy({ where: { order_id: req.params.id } });
                 const orderItems = items.map(item => ({
