@@ -925,44 +925,27 @@ export default function OrdersPage() {
 
                     {modalMode === 'view' && orders.find(o => o.id === selectedOrderId)?.status === 'APPROVED' && (
                         <div className="p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-[2rem] border border-blue-100 shadow-inner group transition-all animate-in zoom-in duration-500">
-                            <div className="flex flex-col md:flex-row items-center gap-6">
-                                <div className="flex-1 w-full space-y-2">
-                                    <label className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                        <Server className="w-3 h-3" /> Manpro Tracking URL
-                                    </label>
-                                    <div className="relative">
-                                        <input
-                                            type="url"
-                                            value={manproUrl}
-                                            onChange={(e) => setManproUrl(e.target.value)}
-                                            placeholder="Masukkan URL Manpro (e.g. https://manpro.systems/view/login/...)"
-                                            className="w-full pl-5 pr-12 py-3.5 bg-white border-2 border-blue-100 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all font-bold text-slate-800 text-sm italic"
-                                        />
-                                        <button
-                                            onClick={handleSaveManproUrl}
-                                            disabled={savingManproUrl}
-                                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 disabled:opacity-50"
-                                            title="Simpan Link"
-                                        >
-                                            {savingManproUrl ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                        </button>
-                                    </div>
+                            <div className="w-full space-y-2">
+                                <label className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                                    <Server className="w-3 h-3" /> Manpro Tracking URL
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="url"
+                                        value={manproUrl}
+                                        onChange={(e) => setManproUrl(e.target.value)}
+                                        placeholder="Masukkan URL Manpro (e.g. https://manpro.systems/view/login/...)"
+                                        className="w-full pl-5 pr-12 py-3.5 bg-white border-2 border-blue-100 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all font-bold text-slate-800 text-sm italic"
+                                    />
+                                    <button
+                                        onClick={handleSaveManproUrl}
+                                        disabled={savingManproUrl}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 disabled:opacity-50"
+                                        title="Simpan Link"
+                                    >
+                                        {savingManproUrl ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                    </button>
                                 </div>
-
-                                {manproUrl && (
-                                    <div className="flex-shrink-0 pt-4 md:pt-0">
-                                        <a
-                                            href={manproUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-center gap-3 px-8 py-3.5 bg-slate-900 text-white font-black rounded-2xl shadow-2xl shadow-slate-200 hover:bg-blue-600 hover:-translate-y-1 transition-all uppercase text-[10px] tracking-widest group/btn"
-                                        >
-                                            <Package className="w-4 h-4 text-blue-400 group-hover/btn:text-white transition-colors" />
-                                            Lacak Pesanan
-                                            <ArrowRight className="w-3.5 h-3.5 opacity-50 group-hover/btn:translate-x-1 transition-transform" />
-                                        </a>
-                                    </div>
-                                )}
                             </div>
                         </div>
                     )}
