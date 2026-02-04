@@ -80,24 +80,6 @@ services:
     networks:
       - purchasing_network
 
-  tracking-service:
-    build: ../tracking-service
-    container_name: tracking-service
-    restart: always
-    ports:
-      - "4003:4003"
-    volumes:
-      - ../tracking-service:/app
-      - /app/node_modules
-    command: npm run dev
-    environment:
-      - PORT=4003
-      - MANPRO_URL=${MANPRO_URL}
-      - MANPRO_USER=${MANPRO_USER}
-      - MANPRO_PASSWORD=${MANPRO_PASSWORD}
-    networks:
-      - purchasing_network
-
 networks:
   purchasing_network:
     driver: bridge
