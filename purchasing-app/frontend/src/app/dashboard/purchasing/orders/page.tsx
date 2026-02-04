@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Plus, Trash2, Loader2, Edit, Eye, Search, X, Printer, Package, Building, User, Calendar, FileText, AlertCircle, Calculator, CheckCircle, XCircle, ClipboardList, PenTool, RefreshCcw } from 'lucide-react';
+import { Plus, Trash2, Loader2, Edit, Eye, Search, X, Printer, Package, Building, User, Calendar, FileText, AlertCircle, Calculator, CheckCircle, XCircle, ClipboardList, PenTool, RefreshCcw, ArrowRight, Server, Save, ExternalLink } from 'lucide-react';
 import Modal from '@/components/Modal';
 import Toast from '@/components/Toast';
 import { useToast } from '@/hooks/useToast';
@@ -65,6 +65,7 @@ interface Order {
     grand_total: number;
     status: string;
     notes?: string;
+    manpro_url?: string;
     OrderItems?: OrderItem[];
     Analysis?: any;
 }
@@ -144,6 +145,8 @@ export default function OrdersPage() {
         setAnalysisForm({ ...analysisForm, details: newDetails });
     };
     const [savingAnalysis, setSavingAnalysis] = useState(false);
+    const [manproUrl, setManproUrl] = useState('');
+    const [savingManproUrl, setSavingManproUrl] = useState(false);
 
     // Print Options State
     const [isPrintOptionsOpen, setIsPrintOptionsOpen] = useState(false);
@@ -379,7 +382,31 @@ export default function OrdersPage() {
         setSelectedDepartment(order.department_id.toString());
         setSelectedPartner(order.partner_id ? order.partner_id.toString() : '');
         setNotes(order.notes || '');
+        setManproUrl(order.manpro_url || '');
         setIsModalOpen(true);
+    };
+
+    const handleSaveManproUrl = async () => {
+        if (!selectedOrderId) return;
+        setSavingManproUrl(true);
+        try {
+            const response = await authenticatedFetch(`${process.env.NEXT_PUBLIC_PURCHASING_API || 'http://localhost:4002'}/api/orders/${selectedOrderId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ manpro_url: manproUrl })
+            });
+
+            if (response.ok) {
+                success('Link Manpro berhasil disimpan');
+                fetchData();
+            } else {
+                error('Gagal menyimpan link Manpro');
+            }
+        } catch (err) {
+            error('Terjadi kesalahan koneksi');
+        } finally {
+            setSavingManproUrl(false);
+        }
     };
 
     const handleEditOrder = (order: Order) => {
@@ -763,13 +790,33 @@ export default function OrdersPage() {
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex justify-end gap-1.5">
+                                                {order.manpro_url && (
+                                                    <a
+                                                        href={order.manpro_url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                                        title="Lacak Pesanan (Manpro)"
+                                                    >
+                                                        <ExternalLink className="w-4 h-4" />
+                                                    </a>
+                                                )}
                                                 <button
-                                                    onClick={() => order.status === 'APPROVED' ? handleOpenPrintOptions(order) : handleViewOrder(order)}
-                                                    className={`p-2 rounded-lg transition-all ${order.status === 'APPROVED' ? 'text-emerald-600 hover:bg-emerald-50' : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'}`}
-                                                    title={order.status === 'APPROVED' ? "Cetak Dokumen" : "Pratinjau"}
+                                                    onClick={() => handleViewOrder(order)}
+                                                    className="p-2 rounded-lg transition-all text-slate-400 hover:text-blue-600 hover:bg-blue-50"
+                                                    title="Pratinjau Detail"
                                                 >
-                                                    {order.status === 'APPROVED' ? <Printer className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                    <Eye className="w-4 h-4" />
                                                 </button>
+                                                {order.status === 'APPROVED' && (
+                                                    <button
+                                                        onClick={() => handleOpenPrintOptions(order)}
+                                                        className="p-2 rounded-lg transition-all text-emerald-600 hover:bg-emerald-50"
+                                                        title="Cetak Dokumen"
+                                                    >
+                                                        <Printer className="w-4 h-4" />
+                                                    </button>
+                                                )}
                                                 {order.status === 'APPROVED' && hasPermission('orders.analysis') && (
                                                     <button
                                                         onClick={() => handleOpenAnalysisModal(order)}
@@ -875,6 +922,50 @@ export default function OrdersPage() {
                             className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900 font-bold disabled:bg-slate-50 disabled:text-slate-400"
                         />
                     </div>
+
+                    {modalMode === 'view' && orders.find(o => o.id === selectedOrderId)?.status === 'APPROVED' && (
+                        <div className="p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-[2rem] border border-blue-100 shadow-inner group transition-all animate-in zoom-in duration-500">
+                            <div className="flex flex-col md:flex-row items-center gap-6">
+                                <div className="flex-1 w-full space-y-2">
+                                    <label className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                                        <Server className="w-3 h-3" /> Manpro Tracking URL
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            type="url"
+                                            value={manproUrl}
+                                            onChange={(e) => setManproUrl(e.target.value)}
+                                            placeholder="Masukkan URL Manpro (e.g. https://manpro.systems/view/login/...)"
+                                            className="w-full pl-5 pr-12 py-3.5 bg-white border-2 border-blue-100 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all font-bold text-slate-800 text-sm italic"
+                                        />
+                                        <button
+                                            onClick={handleSaveManproUrl}
+                                            disabled={savingManproUrl}
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 disabled:opacity-50"
+                                            title="Simpan Link"
+                                        >
+                                            {savingManproUrl ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {manproUrl && (
+                                    <div className="flex-shrink-0 pt-4 md:pt-0">
+                                        <a
+                                            href={manproUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-3 px-8 py-3.5 bg-slate-900 text-white font-black rounded-2xl shadow-2xl shadow-slate-200 hover:bg-blue-600 hover:-translate-y-1 transition-all uppercase text-[10px] tracking-widest group/btn"
+                                        >
+                                            <Package className="w-4 h-4 text-blue-400 group-hover/btn:text-white transition-colors" />
+                                            Lacak Pesanan
+                                            <ArrowRight className="w-3.5 h-3.5 opacity-50 group-hover/btn:translate-x-1 transition-transform" />
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     <div className="border-t border-slate-100 pt-6">
                         <div className="flex justify-between items-center mb-4">
