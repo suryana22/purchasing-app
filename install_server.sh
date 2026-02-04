@@ -40,14 +40,17 @@ else
 fi
 
 # 6. Setup Environment Variables Template
-echo "Setting up .env template..."
+echo "Setting up .env files..."
 PROJECT_ROOT=$(pwd)
 
-# Fungsi untuk membuat .env jika belum ada
-create_env_template() {
+# Generate a random JWT Secret if not provided
+RANDOM_JWT_SECRET=$(openssl rand -hex 32)
+
+# Function to create .env for backend services
+create_service_env() {
     local target_dir=$1
     if [ ! -f "$target_dir/.env" ]; then
-        echo "Creating .env template in $target_dir"
+        echo "Creating .env in $target_dir"
         cat <<EOT > "$target_dir/.env"
 # Database Configuration
 DB_HOST=purchasing_db
@@ -57,7 +60,7 @@ DB_NAME=purchasing_db
 DB_PORT=5432
 
 # Security
-JWT_SECRET=purchasing_app_secret_key_2024
+JWT_SECRET=$RANDOM_JWT_SECRET
 
 # Server Config
 PORT=4000
@@ -65,12 +68,38 @@ EOT
     fi
 }
 
-# Buat env untuk setiap service
-create_env_template "$PROJECT_ROOT/master-data-service"
-create_env_template "$PROJECT_ROOT/purchasing-service"
+# Create .env for Root (Docker Compose)
+if [ ! -f "$PROJECT_ROOT/purchasing-app/.env" ]; then
+    echo "Creating root .env in $PROJECT_ROOT/purchasing-app"
+    cat <<EOT > "$PROJECT_ROOT/purchasing-app/.env"
+# Database Configuration
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=Suryana@130221
+POSTGRES_DB=purchasing_db
 
-# Khusus Frontend .env
+# App Database Connection
+DB_HOST=purchasing_db
+DB_USER=postgres
+DB_PASSWORD=Suryana@130221
+DB_NAME=purchasing_db
+DB_PORT=5432
+
+# Security
+JWT_SECRET=$RANDOM_JWT_SECRET
+
+# Frontend API URLs (Default to localhost, change to server IP if needed)
+NEXT_PUBLIC_MASTER_DATA_API=http://localhost:4001
+NEXT_PUBLIC_PURCHASING_API=http://localhost:4002
+EOT
+fi
+
+# Buat env untuk setiap service
+create_service_env "$PROJECT_ROOT/master-data-service"
+create_service_env "$PROJECT_ROOT/purchasing-service"
+
+# Khusus Frontend .env.local
 if [ ! -f "$PROJECT_ROOT/purchasing-app/frontend/.env.local" ]; then
+    echo "Creating frontend/.env.local"
     cat <<EOT > "$PROJECT_ROOT/purchasing-app/frontend/.env.local"
 NEXT_PUBLIC_MASTER_DATA_API=http://localhost:4001
 NEXT_PUBLIC_PURCHASING_API=http://localhost:4002

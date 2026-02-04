@@ -102,9 +102,6 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <div className="text-center text-xs text-slate-400">
-            Use admin / admin
-          </div>
         </form>
       </div>
     </div>
