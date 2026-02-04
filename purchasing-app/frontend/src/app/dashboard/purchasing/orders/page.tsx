@@ -152,6 +152,35 @@ export default function OrdersPage() {
     const [hoveredOrder, setHoveredOrder] = useState<Order | null>(null);
     const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
 
+    // Tracking State
+    const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
+    const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
+    const [trackingImageUrl, setTrackingImageUrl] = useState<string | null>(null);
+    const [loadingTracking, setLoadingTracking] = useState(false);
+
+    const handleTrackOrder = async (order: Order) => {
+        setTrackingOrder(order);
+        setIsTrackingModalOpen(true);
+        setLoadingTracking(true);
+        setTrackingImageUrl(null);
+
+        try {
+            const response = await authenticatedFetch(`${process.env.NEXT_PUBLIC_TRACKING_API || 'http://localhost:4003'}/api/track/${order.order_number}`);
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                setTrackingImageUrl(url);
+            } else {
+                throw new Error('Gagal mengambil tracking. Pastikan kredensial Manpro di server sudah benar.');
+            }
+        } catch (err: any) {
+            error(err.message || 'Terjadi kesalahan saat melacak pesanan');
+            setIsTrackingModalOpen(false);
+        } finally {
+            setLoadingTracking(false);
+        }
+    };
+
     const { toasts, removeToast, success, error } = useToast();
 
     const fetchData = async () => {
@@ -760,7 +789,17 @@ export default function OrdersPage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <div className="flex justify-end gap-1.5">
+                                            <div className="flex justify-end gap-1.5 text-[0]">
+                                                {/* Tracking Button */}
+                                                {(order.status === 'APPROVED' || order.status === 'PENDING') && (
+                                                    <button
+                                                        onClick={() => handleTrackOrder(order)}
+                                                        className="p-2 rounded-lg text-blue-500 hover:bg-blue-50 transition-all border border-blue-100/50"
+                                                        title="Lacak Pesanan (Manpro)"
+                                                    >
+                                                        <Search className="w-4 h-4" />
+                                                    </button>
+                                                )}
                                                 <button
                                                     onClick={() => order.status === 'APPROVED' ? handleOpenPrintOptions(order) : handleViewOrder(order)}
                                                     className={`p-2 rounded-lg transition-all ${order.status === 'APPROVED' ? 'text-emerald-600 hover:bg-emerald-50' : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'}`}
@@ -1475,6 +1514,62 @@ export default function OrdersPage() {
                             </p>
                         </div>
                     )}
+                </div>
+            </Modal>
+
+            {/* Tracking Modal */}
+            <Modal
+                isOpen={isTrackingModalOpen}
+                onClose={() => setIsTrackingModalOpen(false)}
+                title={`Status Tracking: ${trackingOrder?.order_number}`}
+                size="xl"
+            >
+                <div className="space-y-4">
+                    <div className="bg-slate-900 rounded-2xl overflow-hidden shadow-2xl relative min-h-[400px] flex items-center justify-center border-4 border-slate-800">
+                        {loadingTracking ? (
+                            <div className="flex flex-col items-center gap-4 text-white">
+                                <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
+                                <div className="space-y-1 text-center">
+                                    <p className="font-black uppercase tracking-widest text-sm">Menghubungi Manpro...</p>
+                                    <p className="text-xs text-slate-400 font-medium">Ini mungkin memerlukan waktu 10-20 detik</p>
+                                </div>
+                            </div>
+                        ) : trackingImageUrl ? (
+                            <img
+                                src={trackingImageUrl}
+                                alt="Manpro Tracking Screenshot"
+                                className="w-full h-auto object-contain animate-in fade-in zoom-in duration-500"
+                            />
+                        ) : (
+                            <div className="flex flex-col items-center gap-3 text-slate-500">
+                                <AlertCircle className="w-12 h-12" />
+                                <p className="font-bold">Gagal memuat status tracking</p>
+                            </div>
+                        )}
+
+                        {/* Overlay scanline effect */}
+                        {loadingTracking && (
+                            <div className="absolute inset-0 pointer-events-none opacity-20 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
+                        )}
+                    </div>
+
+                    <div className="flex justify-between items-center bg-blue-50 p-4 rounded-xl border border-blue-100">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-blue-600 rounded-lg text-white">
+                                <Search className="w-4 h-4" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-black uppercase text-blue-600 tracking-widest">Aplikasi Eksternal</p>
+                                <p className="text-xs font-bold text-slate-700">Data diambil secara real-time dari sistem Manpro melalui screenshot otomatis.</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => trackingOrder && handleTrackOrder(trackingOrder)}
+                            className="px-4 py-2 bg-white text-blue-600 border border-blue-200 rounded-lg text-xs font-black uppercase tracking-tight hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                        >
+                            <RefreshCcw className="w-3.5 h-3.5 inline mr-1" /> Segarkan
+                        </button>
+                    </div>
                 </div>
             </Modal>
 
