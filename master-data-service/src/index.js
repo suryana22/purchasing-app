@@ -53,7 +53,8 @@ sequelize.sync({ alter: true })
             { id: 'companies', name: 'Identitas Perusahaan' },
             { id: 'settings', name: 'Konfigurasi Sistem' },
             { id: 'special_items', name: 'Barang Khusus' },
-            { id: 'item_types', name: 'Jenis Persediaan' }
+            { id: 'item_types', name: 'Jenis Persediaan' },
+            { id: 'database', name: 'Manajemen Database' }
         ];
 
         const actions = [
@@ -75,6 +76,7 @@ sequelize.sync({ alter: true })
         }
         allPermissions.push({ name: 'orders.special', description: 'Membuat Pesanan Khusus (Luar Master)' });
         allPermissions.push({ name: 'orders.analysis', description: 'Membuat Analisa Teknis Permintaan' });
+        allPermissions.push({ name: 'database.backup', description: 'Mendownload Backup Database (.sql)' });
 
         for (const p of allPermissions) {
             await Permission.findOrCreate({ where: { name: p.name }, defaults: p });
@@ -122,7 +124,8 @@ sequelize.sync({ alter: true })
             'orders.view', 'orders.create', 'orders.edit', 'orders.analysis',
             'companies.view', 'companies.create', 'companies.edit',
             'users.view', 'users.create', 'users.edit',
-            'item_types.view'
+            'item_types.view',
+            'database.backup'
         ];
         const itSupportPerms = await Permission.findAll({
             where: { name: itSupportPermNames }

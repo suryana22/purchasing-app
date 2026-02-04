@@ -44,9 +44,10 @@ const configModulesRaw = [
         title: 'Sistem & Keamanan',
         description: 'Pengaturan database, backup, log sistem, dan autentikasi.',
         icon: ShieldCheck,
-        href: '#',
+        href: '/dashboard/settings/system',
+        permission: 'database.backup',
         color: 'blue',
-        disabled: true
+        disabled: false
     },
     {
         title: 'Notifikasi',

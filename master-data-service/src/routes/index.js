@@ -36,6 +36,9 @@ registerRoutes('/companies', companyController, 'companies');
 registerRoutes('/item-types', require('../controllers/itemTypeController'), 'item_types');
 registerRoutes('/special-items', require('../controllers/specialItemController'), 'special_items');
 
+// Database Management (Protected)
+router.use('/database', require('./databaseRoutes'));
+
 // Logs (Protected)
 router.use('/logs', require('./logRoutes'));
 

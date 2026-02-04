@@ -21,6 +21,7 @@ export default function SystemSettings() {
     const [environment, setEnvironment] = useState<string>('');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [downloading, setDownloading] = useState(false);
     const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
 
     useEffect(() => {
@@ -35,7 +36,7 @@ export default function SystemSettings() {
     const fetchConfig = async () => {
         try {
             setLoading(true);
-            const response = await authenticatedFetch(`${API_BASE}/system-config`);
+            const response = await authenticatedFetch(`${API_BASE}/api/database/config`);
             if (response.ok) {
                 const data = await response.json();
                 setEnvironment(data.ENVIRONMENT || 'production');
@@ -51,7 +52,7 @@ export default function SystemSettings() {
     const handleSave = async (selectedEnv: string) => {
         try {
             setSaving(true);
-            const response = await authenticatedFetch(`${API_BASE}/api/system-config`, {
+            const response = await authenticatedFetch(`${API_BASE}/api/database/config`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ENVIRONMENT: selectedEnv })
@@ -72,6 +73,34 @@ export default function SystemSettings() {
             showMessage('Terjadi kesalahan saat menyimpan', 'error');
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleDownloadBackup = async () => {
+        try {
+            setDownloading(true);
+            const response = await authenticatedFetch(`${API_BASE}/api/database/backup`);
+
+            if (response.ok) {
+                // Handle binary download
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `backup-${new Date().toISOString().split('T')[0]}.sql`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                showMessage('Backup database berhasil diunduh', 'success');
+            } else {
+                showMessage('Gagal mengunduh backup database', 'error');
+            }
+        } catch (error) {
+            console.error('Download error:', error);
+            showMessage('Terjadi kesalahan koneksi', 'error');
+        } finally {
+            setDownloading(false);
         }
     };
 
@@ -199,6 +228,38 @@ export default function SystemSettings() {
                                 </ul>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                {/* Database Backup Card */}
+                <div className="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/50 overflow-hidden">
+                    <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-200">
+                                <Save className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-bold text-slate-900">Cadangan Data (Backup)</h2>
+                                <p className="text-sm text-slate-500 font-medium">Download salinan database dalam format .sql.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="p-8 flex flex-col items-center justify-center text-center space-y-6">
+                        <div className="max-w-md space-y-2">
+                            <p className="text-slate-600 font-medium">
+                                Klik tombol di bawah untuk mengekspor seluruh data sistem saat ini. File ini dapat digunakan untuk migrasi atau pemulihan data (restore) di kemudian hari.
+                            </p>
+                        </div>
+
+                        <button
+                            onClick={handleDownloadBackup}
+                            disabled={downloading}
+                            className="flex items-center gap-3 px-8 py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-xl shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-95 disabled:opacity-50"
+                        >
+                            {downloading ? <RefreshCcw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                            DOWNLOAD BACKUP SEKARANG (.SQL)
+                        </button>
                     </div>
                 </div>
 
