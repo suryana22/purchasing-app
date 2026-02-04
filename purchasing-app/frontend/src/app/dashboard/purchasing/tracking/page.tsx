@@ -26,6 +26,7 @@ interface Order {
     date?: string;
     grand_total: number;
     status: string;
+    manpro_url?: string;
 }
 
 export default function TrackingPage() {
@@ -44,12 +45,40 @@ export default function TrackingPage() {
 
     const { toasts, removeToast, error } = useToast();
 
+    const getApiUrl = (endpoint: string, type: 'master' | 'purchasing' | 'tracking' = 'purchasing') => {
+        let base = '';
+        let port = '4002'; // default purchasing
+
+        if (type === 'master') {
+            base = process.env.NEXT_PUBLIC_MASTER_DATA_API || '';
+            port = '4001';
+        } else if (type === 'tracking') {
+            base = process.env.NEXT_PUBLIC_TRACKING_API || '';
+            port = '4003';
+        } else {
+            base = process.env.NEXT_PUBLIC_PURCHASING_API || '';
+            port = '4002';
+        }
+
+        if (typeof window !== 'undefined') {
+            if (!base || base.includes('10.200.111.180')) {
+                const host = window.location.hostname;
+                base = `http://${host}:${port}`;
+            }
+        }
+
+        if (!base) base = `http://localhost:${port}`;
+
+        const normalizedBase = base.replace(/\/api\/?$/, '').replace(/\/$/, '');
+        return `${normalizedBase}/api${endpoint}`;
+    };
+
     const fetchData = async () => {
         try {
             const [deptRes, partsRes, ordersRes] = await Promise.all([
-                authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/departments`),
-                authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/partners`),
-                authenticatedFetch(`${process.env.NEXT_PUBLIC_PURCHASING_API || 'http://localhost:4002'}/api/orders`)
+                authenticatedFetch(getApiUrl('/departments', 'master')),
+                authenticatedFetch(getApiUrl('/partners', 'master')),
+                authenticatedFetch(getApiUrl('/orders', 'purchasing'))
             ]);
 
             if (deptRes.ok && partsRes.ok && ordersRes.ok) {
@@ -59,8 +88,10 @@ export default function TrackingPage() {
 
                 setDepartments(depts);
                 setPartners(parts);
-                // Only show Approved or Pending orders for tracking
-                setOrders(ordersData.filter((o: Order) => o.status === 'APPROVED' || o.status === 'PENDING'));
+                // Only show orders that have a Manpro URL (and are Approved/Pending)
+                setOrders(ordersData.filter((o: Order) =>
+                    (o.status === 'APPROVED' || o.status === 'PENDING') && o.manpro_url
+                ));
             }
         } catch (err) {
             console.error('Error fetching data:', err);
@@ -194,13 +225,15 @@ export default function TrackingPage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <button
-                                                onClick={() => handleTrackOrder(order)}
-                                                className="px-6 py-2 bg-blue-600 text-white font-black uppercase text-[10px] rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 flex items-center gap-2 ml-auto"
+                                            <a
+                                                href={order.manpro_url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="px-6 py-2 bg-blue-600 text-white font-black uppercase text-[10px] rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 flex items-center gap-2 ml-auto w-fit"
                                             >
                                                 <Search className="w-3.5 h-3.5" />
                                                 Lacak Sekarang
-                                            </button>
+                                            </a>
                                         </td>
                                     </tr>
                                 ))

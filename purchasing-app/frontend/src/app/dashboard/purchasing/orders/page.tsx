@@ -165,11 +165,11 @@ export default function OrdersPage() {
 
         try {
             const [deptRes, partsRes, itemsRes, ordersRes, itemTypesRes] = await Promise.all([
-                authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/departments`),
-                authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/partners`),
-                authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/items`),
-                authenticatedFetch(`${process.env.NEXT_PUBLIC_PURCHASING_API || 'http://localhost:4002'}/api/orders`),
-                authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/item-types`)
+                authenticatedFetch(getApiUrl('/departments', 'master')),
+                authenticatedFetch(getApiUrl('/partners', 'master')),
+                authenticatedFetch(getApiUrl('/items', 'master')),
+                authenticatedFetch(getApiUrl('/orders', 'purchasing')),
+                authenticatedFetch(getApiUrl('/item-types', 'master'))
             ]);
 
             if (!deptRes.ok || !partsRes.ok || !itemsRes.ok || !ordersRes.ok || !itemTypesRes.ok) {
@@ -197,7 +197,7 @@ export default function OrdersPage() {
             setItemTypes(types);
 
             // Fetch Companies
-            const compRes = await authenticatedFetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/companies`);
+            const compRes = await authenticatedFetch(getApiUrl('/companies', 'master'));
             if (compRes.ok) {
                 const compData = await compRes.json();
                 setCompanies(compData);
@@ -369,6 +369,31 @@ export default function OrdersPage() {
         setIsModalOpen(true);
     };
 
+    const getApiUrl = (endpoint: string, type: 'master' | 'purchasing' = 'purchasing') => {
+        let base = '';
+        let port = '4002'; // default purchasing
+
+        if (type === 'master') {
+            base = process.env.NEXT_PUBLIC_MASTER_DATA_API || '';
+            port = '4001';
+        } else {
+            base = process.env.NEXT_PUBLIC_PURCHASING_API || '';
+            port = '4002';
+        }
+
+        if (typeof window !== 'undefined') {
+            if (!base || base.includes('10.200.111.180')) {
+                const host = window.location.hostname;
+                base = `http://${host}:${port}`;
+            }
+        }
+
+        if (!base) base = `http://localhost:${port}`;
+
+        const normalizedBase = base.replace(/\/api\/?$/, '').replace(/\/$/, '');
+        return `${normalizedBase}/api${endpoint}`;
+    };
+
     const handleViewOrder = (order: Order) => {
         setModalMode('view');
         setSelectedOrderId(order.id);
@@ -390,7 +415,8 @@ export default function OrdersPage() {
         if (!selectedOrderId) return;
         setSavingManproUrl(true);
         try {
-            const response = await authenticatedFetch(`${process.env.NEXT_PUBLIC_PURCHASING_API || 'http://localhost:4002'}/api/orders/${selectedOrderId}`, {
+            const url = getApiUrl(`/orders/${selectedOrderId}`);
+            const response = await authenticatedFetch(url, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ manpro_url: manproUrl })
@@ -565,7 +591,7 @@ export default function OrdersPage() {
         const confirmMsg = status === 'APPROVED' ? 'menyetujui' : status === 'REJECTED' ? 'menolak' : 'menunda';
         if (!confirm(`Apakah Anda yakin ingin ${confirmMsg} pemesanan ini?`)) return;
         try {
-            const response = await authenticatedFetch(`${process.env.NEXT_PUBLIC_PURCHASING_API || 'http://localhost:4002'}/api/orders/${id}/approve`, {
+            const response = await authenticatedFetch(getApiUrl(`/orders/${id}/approve`, 'purchasing'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status })
@@ -610,8 +636,8 @@ export default function OrdersPage() {
             };
 
             const url = modalMode === 'edit' && selectedOrderId
-                ? `${process.env.NEXT_PUBLIC_PURCHASING_API || 'http://localhost:4002'}/api/orders/${selectedOrderId}`
-                : `${process.env.NEXT_PUBLIC_PURCHASING_API || 'http://localhost:4002'}/api/orders`;
+                ? getApiUrl(`/orders/${selectedOrderId}`, 'purchasing')
+                : getApiUrl('/orders', 'purchasing');
 
             const method = modalMode === 'edit' ? 'PUT' : 'POST';
 
