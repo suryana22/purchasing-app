@@ -27,6 +27,7 @@ const User = require('./models/User');
 const CompanySetting = require('./models/CompanySetting');
 const Role = require('./models/Role');
 const Permission = require('./models/Permission');
+const SystemSetting = require('./models/SystemSetting');
 
 // Associations
 Role.belongsToMany(Permission, { through: 'RolePermissions' });
