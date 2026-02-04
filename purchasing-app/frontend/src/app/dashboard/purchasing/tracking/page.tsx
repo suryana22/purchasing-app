@@ -42,8 +42,9 @@ export default function TrackingPage() {
     const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
     const [trackingImageUrl, setTrackingImageUrl] = useState<string | null>(null);
     const [loadingTracking, setLoadingTracking] = useState(false);
+    const [manproCreds, setManproCreds] = useState({ username: '', password: '' });
 
-    const { toasts, removeToast, error } = useToast();
+    const { toasts, removeToast, error, success } = useToast();
 
     const getApiUrl = (endpoint: string, type: 'master' | 'purchasing' | 'tracking' = 'purchasing') => {
         let base = '';
@@ -75,16 +76,27 @@ export default function TrackingPage() {
 
     const fetchData = async () => {
         try {
-            const [deptRes, partsRes, ordersRes] = await Promise.all([
+            const [deptRes, partsRes, ordersRes, settingsRes] = await Promise.all([
                 authenticatedFetch(getApiUrl('/departments', 'master')),
                 authenticatedFetch(getApiUrl('/partners', 'master')),
-                authenticatedFetch(getApiUrl('/orders', 'purchasing'))
+                authenticatedFetch(getApiUrl('/orders', 'purchasing')),
+                authenticatedFetch(getApiUrl('/settings', 'master'))
             ]);
 
             if (deptRes.ok && partsRes.ok && ordersRes.ok) {
                 const depts = await deptRes.json();
                 const parts = await partsRes.json();
                 const ordersData = await ordersRes.json();
+
+                if (settingsRes.ok) {
+                    const settingsData = await settingsRes.json();
+                    const creds = { username: '', password: '' };
+                    settingsData.forEach((s: any) => {
+                        if (s.key === 'manpro_username') creds.username = s.value;
+                        if (s.key === 'manpro_password') creds.password = s.value;
+                    });
+                    setManproCreds(creds);
+                }
 
                 setDepartments(depts);
                 setPartners(parts);
@@ -107,24 +119,6 @@ export default function TrackingPage() {
     const handleTrackOrder = async (order: Order) => {
         setTrackingOrder(order);
         setIsTrackingModalOpen(true);
-        setLoadingTracking(true);
-        setTrackingImageUrl(null);
-
-        try {
-            const response = await authenticatedFetch(`${process.env.NEXT_PUBLIC_TRACKING_API || 'http://localhost:4003'}/api/track/${order.order_number}`);
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = URL.createObjectURL(blob);
-                setTrackingImageUrl(url);
-            } else {
-                throw new Error('Gagal mengambil tracking. Pastikan kredensial Manpro di server sudah benar.');
-            }
-        } catch (err: any) {
-            error(err.message || 'Terjadi kesalahan saat melacak pesanan');
-            setIsTrackingModalOpen(false);
-        } finally {
-            setLoadingTracking(false);
-        }
     };
 
     const filteredOrders = orders.filter(order =>
@@ -225,15 +219,13 @@ export default function TrackingPage() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <a
-                                                href={order.manpro_url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
+                                            <button
+                                                onClick={() => handleTrackOrder(order)}
                                                 className="px-6 py-2 bg-blue-600 text-white font-black uppercase text-[10px] rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 flex items-center gap-2 ml-auto w-fit"
                                             >
                                                 <Search className="w-3.5 h-3.5" />
                                                 Lacak Sekarang
-                                            </a>
+                                            </button>
                                         </td>
                                     </tr>
                                 ))
@@ -248,52 +240,66 @@ export default function TrackingPage() {
                 isOpen={isTrackingModalOpen}
                 onClose={() => setIsTrackingModalOpen(false)}
                 title={`Status Tracking: ${trackingOrder?.order_number}`}
-                size="xl"
+                size="lg"
             >
-                <div className="space-y-4">
-                    <div className="bg-slate-900 rounded-2xl overflow-hidden shadow-2xl relative min-h-[500px] flex items-center justify-center border-4 border-slate-800">
-                        {loadingTracking ? (
-                            <div className="flex flex-col items-center gap-4 text-white">
-                                <Loader2 className="w-12 h-12 text-blue-500 animate-spin" />
-                                <div className="space-y-1 text-center">
-                                    <p className="font-black uppercase tracking-widest text-sm">Menghubungi Manpro...</p>
-                                    <p className="text-xs text-slate-400 font-medium font-mono">ESTABLISHING SECURE CONNECTION</p>
-                                </div>
+                <div className="space-y-6">
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100 shadow-inner">
+                        <div className="flex items-start gap-4">
+                            <div className="p-3 bg-white rounded-xl shadow-sm text-blue-600">
+                                <RefreshCcw className="w-6 h-6 animate-pulse" />
                             </div>
-                        ) : trackingImageUrl ? (
-                            <img
-                                src={trackingImageUrl}
-                                alt="Manpro Tracking Screenshot"
-                                className="w-full h-auto object-contain animate-in fade-in zoom-in duration-500"
-                            />
-                        ) : (
-                            <div className="flex flex-col items-center gap-3 text-slate-500">
-                                <AlertCircle className="w-12 h-12" />
-                                <p className="font-bold">Gagal memuat status tracking</p>
-                            </div>
-                        )}
-
-                        {loadingTracking && (
-                            <div className="absolute inset-0 pointer-events-none opacity-20 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_2px,3px_100%]" />
-                        )}
-                    </div>
-
-                    <div className="flex justify-between items-center bg-blue-50 p-6 rounded-2xl border border-blue-100 shadow-sm">
-                        <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                                <RefreshCcw className="w-6 h-6" />
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-black uppercase text-blue-600 tracking-widest">Sistem Integrasi Luar</p>
-                                <p className="text-sm font-bold text-slate-700 leading-tight">Data diambil secara real-time dari sistem pihak ketiga (Manpro).</p>
+                            <div className="space-y-1">
+                                <h3 className="font-black text-slate-800 text-lg">Arahkan ke Manpro System</h3>
+                                <p className="text-sm text-slate-600 leading-relaxed font-medium">
+                                    Anda akan diarahkan ke sistem Manpro untuk melihat status pengiriman secara detail.
+                                    Jika sesi Anda habis, gunakan kredensial di bawah ini untuk login kembali.
+                                </p>
                             </div>
                         </div>
-                        <button
-                            onClick={() => trackingOrder && handleTrackOrder(trackingOrder)}
-                            className="px-6 py-3 bg-white text-blue-600 border-2 border-blue-200 rounded-xl text-xs font-black uppercase tracking-tight hover:bg-blue-600 hover:text-white transition-all shadow-md group"
-                        >
-                            <RefreshCcw className="w-3.5 h-3.5 inline mr-2 group-hover:animate-spin" /> Segarkan Data
-                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="p-4 rounded-xl border-2 border-slate-100 hover:border-blue-200 transition-all group">
+                            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 block">Username</label>
+                            <div className="flex items-center justify-between">
+                                <span className="font-bold text-slate-800 font-mono text-sm">{manproCreds.username || '-'}</span>
+                                <button
+                                    onClick={() => { navigator.clipboard.writeText(manproCreds.username); success('Username disalin'); }}
+                                    className="text-blue-500 hover:text-blue-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    title="Salin Username"
+                                >
+                                    <RefreshCcw className="w-4 h-4 rotate-90" />
+                                </button>
+                            </div>
+                        </div>
+                        <div className="p-4 rounded-xl border-2 border-slate-100 hover:border-blue-200 transition-all group">
+                            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 block">Password</label>
+                            <div className="flex items-center justify-between">
+                                <span className="font-bold text-slate-800 font-mono text-sm">{'•'.repeat(manproCreds.password.length) || '-'}</span>
+                                <button
+                                    onClick={() => { navigator.clipboard.writeText(manproCreds.password); success('Password disalin'); }}
+                                    className="text-blue-500 hover:text-blue-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    title="Salin Password"
+                                >
+                                    <RefreshCcw className="w-4 h-4 rotate-90" />
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-slate-100 flex justify-end">
+                        {trackingOrder?.manpro_url && (
+                            <a
+                                href={trackingOrder.manpro_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-8 py-4 bg-blue-600 text-white font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center gap-3"
+                                onClick={() => setIsTrackingModalOpen(false)}
+                            >
+                                <Search className="w-5 h-5" />
+                                Buka Link Tracking
+                            </a>
+                        )}
                     </div>
                 </div>
             </Modal>
