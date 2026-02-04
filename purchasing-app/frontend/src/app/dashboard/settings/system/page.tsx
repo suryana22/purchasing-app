@@ -21,6 +21,61 @@ export default function SystemSettings() {
     const [loading, setLoading] = useState(false);
     const [downloading, setDownloading] = useState(false);
     const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
+    const [settings, setSettings] = useState({
+        manpro_url: '',
+        manpro_username: '',
+        manpro_password: ''
+    });
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        fetchSettings();
+    }, []);
+
+    const fetchSettings = async () => {
+        try {
+            setLoading(true);
+            const response = await authenticatedFetch(`${API_BASE}/api/settings`);
+            if (response.ok) {
+                const data = await response.json();
+                const newSettings = { ...settings };
+                data.forEach((item: any) => {
+                    if (item.key in newSettings) {
+                        (newSettings as any)[item.key] = item.value;
+                    }
+                });
+                setSettings(newSettings);
+            }
+        } catch (error) {
+            console.error('Fetch settings error:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSaveSettings = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            setSaving(true);
+            const settingsArray = Object.entries(settings).map(([key, value]) => ({ key, value }));
+            const response = await authenticatedFetch(`${API_BASE}/api/settings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ settings: settingsArray })
+            });
+
+            if (response.ok) {
+                showMessage('Konfigurasi Manpro berhasil disimpan', 'success');
+            } else {
+                showMessage('Gagal menyimpan konfigurasi', 'error');
+            }
+        } catch (error) {
+            console.error('Save settings error:', error);
+            showMessage('Terjadi kesalahan koneksi', 'error');
+        } finally {
+            setSaving(false);
+        }
+    };
 
     const showMessage = (text: string, type: 'success' | 'error') => {
         setMessage({ text, type });
@@ -33,7 +88,6 @@ export default function SystemSettings() {
             const response = await authenticatedFetch(`${API_BASE}/api/database/backup`);
 
             if (response.ok) {
-                // Handle binary download
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
@@ -66,7 +120,6 @@ export default function SystemSettings() {
 
     return (
         <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="space-y-1">
                     <div className="flex items-center gap-2 text-slate-500 mb-2">
@@ -82,10 +135,8 @@ export default function SystemSettings() {
                 </div>
             </div>
 
-            {/* Message Notification */}
             {message && (
-                <div className={`p-4 rounded-2xl flex items-center gap-3 animate-in fade-in zoom-in duration-300 ${message.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-700 border border-red-100'
-                    }`}>
+                <div className={`p-4 rounded-2xl flex items-center gap-3 animate-in fade-in zoom-in duration-300 ${message.type === 'success' ? 'bg-emerald-50 text-emerald-700 border border-emerald-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>
                     {message.type === 'success' ? <CheckCircle2 className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
                     <span className="font-bold">{message.text}</span>
                 </div>
@@ -93,12 +144,69 @@ export default function SystemSettings() {
 
 
             <div className="grid grid-cols-1 gap-8">
-                {/* Database Backup Card */}
+                <div className="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/50 overflow-hidden">
+                    <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-blue-50/50">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
+                                <Server className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-bold text-slate-900">Integrasi Manpro</h2>
+                                <p className="text-sm text-slate-500 font-medium">Kredensial untuk robot tracking otomatis.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form onSubmit={handleSaveSettings} className="p-8 space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="md:col-span-2 space-y-2">
+                                <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">URL Aplikasi Manpro</label>
+                                <input
+                                    type="url"
+                                    placeholder="https://manpro.id"
+                                    value={settings.manpro_url}
+                                    onChange={(e) => setSettings({ ...settings, manpro_url: e.target.value })}
+                                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all font-bold"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Username Manpro</label>
+                                <input
+                                    type="text"
+                                    value={settings.manpro_username}
+                                    onChange={(e) => setSettings({ ...settings, manpro_username: e.target.value })}
+                                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all font-bold"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Password Manpro</label>
+                                <input
+                                    type="password"
+                                    value={settings.manpro_password}
+                                    onChange={(e) => setSettings({ ...settings, manpro_password: e.target.value })}
+                                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all font-bold"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end pt-4">
+                            <button
+                                type="submit"
+                                disabled={saving}
+                                className="flex items-center gap-3 px-10 py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 disabled:opacity-50"
+                            >
+                                {saving ? <RefreshCcw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                                SIMPAN PERUBAHAN
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
                 <div className="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/50 overflow-hidden">
                     <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                         <div className="flex items-center gap-4">
                             <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-200">
-                                <Save className="w-6 h-6 text-white" />
+                                <Database className="w-6 h-6 text-white" />
                             </div>
                             <div>
                                 <h2 className="text-xl font-bold text-slate-900">Cadangan Data (Backup)</h2>
@@ -110,7 +218,7 @@ export default function SystemSettings() {
                     <div className="p-8 flex flex-col items-center justify-center text-center space-y-6">
                         <div className="max-w-md space-y-2">
                             <p className="text-slate-600 font-medium">
-                                Klik tombol di bawah untuk mengekspor seluruh data sistem saat ini (User, Master Data, Transaksi). File ini sangat penting disimpan secara rutin sebagai antisipasi kegagalan sistem.
+                                Klik tombol di bawah untuk mengekspor seluruh data sistem saat ini. File ini sangat penting disimpan secara rutin.
                             </p>
                         </div>
 
@@ -125,7 +233,6 @@ export default function SystemSettings() {
                     </div>
                 </div>
 
-                {/* System Logs Hint Card (Small) */}
                 <div className="bg-slate-900 rounded-3xl p-8 text-white relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 blur-[100px] -mr-32 -mt-32"></div>
                     <div className="relative z-10 flex items-center justify-between gap-6">

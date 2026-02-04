@@ -42,6 +42,11 @@ router.use('/database', require('./databaseRoutes'));
 // Logs (Protected)
 router.use('/logs', require('./logRoutes'));
 
+// System Settings
+const settingController = require('../controllers/settingController');
+router.get('/settings', authenticateToken, checkPermission('settings.view'), settingController.getSettings);
+router.post('/settings', authenticateToken, checkPermission('settings.edit'), settingController.updateSettings);
+
 
 
 module.exports = router;
