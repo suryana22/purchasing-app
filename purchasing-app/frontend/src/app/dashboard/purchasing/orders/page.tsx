@@ -387,28 +387,11 @@ export default function OrdersPage() {
     };
 
     const getApiUrl = (endpoint: string, type: 'master' | 'purchasing' = 'purchasing') => {
-        let base = '';
-        let port = '4002'; // default purchasing
-
-        if (type === 'master') {
-            base = process.env.NEXT_PUBLIC_MASTER_DATA_API || '';
-            port = '4001';
-        } else {
-            base = process.env.NEXT_PUBLIC_PURCHASING_API || '';
-            port = '4002';
-        }
-
-        if (typeof window !== 'undefined') {
-            if (!base || base.includes('10.200.111.180')) {
-                const host = window.location.hostname;
-                base = `http://${host}:${port}`;
-            }
-        }
-
-        if (!base) base = `http://localhost:${port}`;
-
-        const normalizedBase = base.replace(/\/api\/?$/, '').replace(/\/$/, '');
-        return `${normalizedBase}/api${endpoint}`;
+        // Use relative paths to trigger Next.js rewrites/proxy
+        // This solves the IP vs Domain access issue
+        const prefix = type === 'master' ? '/api/master-data' : '/api/purchasing';
+        const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+        return `${prefix}${normalizedEndpoint}`;
     };
 
     const handleViewOrder = (order: Order) => {

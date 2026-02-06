@@ -62,31 +62,14 @@ export default function TrackingPage() {
     const { toasts, removeToast, error, success } = useToast();
 
     const getApiUrl = (endpoint: string, type: 'master' | 'purchasing' | 'tracking' = 'purchasing') => {
-        let base = '';
-        let port = '4002'; // default purchasing
+        // Use relative paths to trigger Next.js rewrites/proxy
+        // This solves the IP vs Domain access issue
+        let prefix = '/api/purchasing';
+        if (type === 'master') prefix = '/api/master-data';
+        if (type === 'tracking') prefix = '/api/tracking';
 
-        if (type === 'master') {
-            base = process.env.NEXT_PUBLIC_MASTER_DATA_API || '';
-            port = '4001';
-        } else if (type === 'tracking') {
-            base = process.env.NEXT_PUBLIC_TRACKING_API || '';
-            port = '4003';
-        } else {
-            base = process.env.NEXT_PUBLIC_PURCHASING_API || '';
-            port = '4002';
-        }
-
-        if (typeof window !== 'undefined') {
-            if (!base || base.includes('10.200.111.180')) {
-                const host = window.location.hostname;
-                base = `http://${host}:${port}`;
-            }
-        }
-
-        if (!base) base = `http://localhost:${port}`;
-
-        const normalizedBase = base.replace(/\/api\/?$/, '').replace(/\/$/, '');
-        return `${normalizedBase}/api${endpoint}`;
+        const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+        return `${prefix}${normalizedEndpoint}`;
     };
 
     const fetchData = async () => {

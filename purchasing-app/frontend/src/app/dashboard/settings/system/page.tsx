@@ -28,31 +28,14 @@ export default function SystemSettings() {
         manpro_password: ''
     });
     const [saving, setSaving] = useState(false);
-    
+
     // Resolve API URL dynamically
     const getApiUrl = (endpoint: string) => {
-        let base = process.env.NEXT_PUBLIC_MASTER_DATA_API || '';
-        
-        if (typeof window !== 'undefined') {
-            // Priority 1: Current browser host (if it matches common patterns)
-            const host = window.location.hostname;
-            const protocol = window.location.protocol;
-            
-            // If the current host is an IP or localhost, prioritize it over hardcoded env
-            if (host === 'localhost' || host === '127.0.0.1' || host.startsWith('10.') || host.startsWith('192.')) {
-                base = `${protocol}//${host}:4001`;
-            }
-        }
-        
-        // Final fallback if still empty
-        if (!base) base = 'http://localhost:4001';
-        
-        // Normalize: remove trailing /api if it exists to avoid duplication
-        const normalizedBase = base.replace(/\/api\/?$/, '').replace(/\/$/, '');
-        
-        const finalUrl = `${normalizedBase}/api${endpoint}`;
-        console.log(`[SystemSettings] Generated URL for ${endpoint}: `, finalUrl);
-        return finalUrl;
+        // Use relative paths to trigger Next.js rewrites/proxy
+        // This solves the IP vs Domain access issue
+        const prefix = '/api/master-data';
+        const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+        return `${prefix}${normalizedEndpoint}`;
     };
 
     useEffect(() => {
@@ -87,7 +70,7 @@ export default function SystemSettings() {
             setSaving(true);
             const url = getApiUrl('/settings');
             const settingsArray = Object.entries(settings).map(([key, value]) => ({ key, value }));
-            
+
             const response = await authenticatedFetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -157,7 +140,7 @@ export default function SystemSettings() {
                                 <ChevronLeft className="w-4 h-4" /> Pengaturan Utama
                             </Link>
                         ) : (
-                            <button 
+                            <button
                                 onClick={() => setActiveTab('main')}
                                 className="hover:text-blue-600 transition-colors flex items-center gap-1 text-sm font-black uppercase tracking-tight"
                             >
@@ -277,7 +260,7 @@ export default function SystemSettings() {
                         </div>
 
                         <div className="flex justify-between items-center pt-6 border-t border-slate-100">
-                             <div className="px-5 py-3 bg-amber-50 text-amber-700 rounded-2xl flex items-center gap-3 border border-amber-100">
+                            <div className="px-5 py-3 bg-amber-50 text-amber-700 rounded-2xl flex items-center gap-3 border border-amber-100">
                                 <AlertTriangle className="w-4 h-4" />
                                 <p className="text-[10px] font-bold uppercase leading-tight italic max-w-[250px]">Kredensial dienkripsi dan hanya dapat diakses oleh layanan robot.</p>
                             </div>
@@ -338,7 +321,7 @@ export default function SystemSettings() {
                                 Download Sekarang
                             </button>
                         </div>
-                        
+
                         <div className="flex items-center gap-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                             <ShieldCheck className="w-4 h-4 text-emerald-500" />
                             Proses ini aman dan tidak mengganggu performa aplikasi berjalan
