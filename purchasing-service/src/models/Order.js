@@ -60,6 +60,32 @@ const Order = sequelize.define('Order', {
     manpro_url: {
         type: DataTypes.TEXT,
         allowNull: true,
+    },
+    manpro_current_position: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: 'Suryana, Esa Setiawan, Eri Wijaya, Yulisar Khiat'
+    },
+    manpro_is_closed: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    manpro_manual_status: {
+        type: DataTypes.STRING, // 'PENDING_DIRECTOR', 'APPROVED_DIRECTOR'
+        allowNull: true
+    },
+    manpro_post_approval_url: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    manpro_post_is_closed: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        comment: 'The user who created this order'
     }
 }, {
     timestamps: true,

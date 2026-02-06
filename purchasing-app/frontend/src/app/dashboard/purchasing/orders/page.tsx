@@ -155,6 +155,23 @@ export default function OrdersPage() {
     const [hoveredOrder, setHoveredOrder] = useState<Order | null>(null);
     const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
 
+    // Manpro Creation State
+    const [isManproModalOpen, setIsManproModalOpen] = useState(false);
+    const [creatingManpro, setCreatingManpro] = useState(false);
+    const [manproForm, setManproForm] = useState({
+        judul: '',
+        kategori: 'General',
+        prioritas: 'Tinggi',
+        ditujukan_kepada: '',
+        cc: '',
+        deskripsi: '',
+        tanggal_target: '',
+        lampiran: null as string | null,
+        lampiranName: ''
+    });
+    const [manproCreds, setManproCreds] = useState({ username: '', password: '' });
+    const [isDryRun, setIsDryRun] = useState(false);
+
 
 
     const { toasts, removeToast, success, error } = useToast();
@@ -435,9 +452,59 @@ export default function OrdersPage() {
         }
     };
 
+    const handleCreateManproIssue = async () => {
+        if (!selectedOrderId) return;
+        setCreatingManpro(true);
+        try {
+            const url = getApiUrl(`/orders/${selectedOrderId}/create-manpro`);
+            const response = await authenticatedFetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    formData: manproForm,
+                    username: manproCreds.username,
+                    password: manproCreds.password,
+                    dryRun: isDryRun
+                })
+            });
+
+            if (response.ok) {
+                const updatedOrder = await response.json();
+                success('Dokumen Manpro berhasil dibuat!');
+                setManproUrl(updatedOrder.manpro_url || '');
+                setIsManproModalOpen(false);
+                fetchData();
+            } else {
+                const data = await response.json();
+                error('Gagal membuat dokumen: ' + (data.error || 'Terjadi kesalahan sistem'));
+            }
+        } catch (err) {
+            error('Terjadi kesalahan koneksi ke server');
+        } finally {
+            setCreatingManpro(false);
+        }
+    };
+
+    const openCreateManproModal = (order: Order) => {
+        setSelectedOrderId(order.id);
+        const totalText = order.grand_total ? ` - Total: Rp ${Number(order.grand_total).toLocaleString()}` : '';
+        setManproForm({
+            judul: '',
+            kategori: 'General',
+            prioritas: 'Tinggi',
+            ditujukan_kepada: '',
+            cc: '',
+            deskripsi: `Nomor Order: ${order.order_number}\n\nItem Barang:\n${order.OrderItems?.map(i => `- ${i.item_name} (${i.quantity} Unit)`).join('\n')}\n\nMohon untuk diproses lebih lanjut.`,
+            tanggal_target: new Date().toISOString().split('T')[0],
+            lampiran: null,
+            lampiranName: ''
+        });
+        setIsManproModalOpen(true);
+    };
+
     const handleEditOrder = (order: Order) => {
         // Prevent editing non-draft orders, unless administrator
-        if (order.status !== 'DRAFT' && user?.role?.toLowerCase() !== 'administrator') {
+        if (order.status !== 'DRAFT' && !['administrator', 'it support'].includes(user?.role?.toLowerCase() || '')) {
             alert('Tidak dapat mengubah order yang sudah disetujui!');
             return;
         }
@@ -709,7 +776,14 @@ export default function OrdersPage() {
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight">Pemesanan Barang (PO)</h1>
-                    <p className="text-slate-500 text-sm mt-1">Kelola siklus pengadaan barang dari pengajuan hingga realisasi.</p>
+                    <div className="flex items-center gap-2 mt-1">
+                        <p className="text-slate-500 text-sm">Kelola siklus pengadaan barang dari pengajuan hingga realisasi.</p>
+                        {user?.role && !['administrator', 'it support'].includes(user.role.toLowerCase()) && (
+                            <span className="px-2 py-0.5 bg-amber-50 text-amber-600 text-[10px] font-black uppercase rounded-md border border-amber-100">
+                                Riwayat Pribadi
+                            </span>
+                        )}
+                    </div>
                 </div>
                 <div className="flex gap-2">
                     {hasPermission('orders.special') && (
@@ -816,17 +890,6 @@ export default function OrdersPage() {
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex justify-end gap-1.5">
-                                                {order.manpro_url && (
-                                                    <a
-                                                        href={order.manpro_url}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                                                        title="Lacak Pesanan (Manpro)"
-                                                    >
-                                                        <ExternalLink className="w-4 h-4" />
-                                                    </a>
-                                                )}
                                                 <button
                                                     onClick={() => handleViewOrder(order)}
                                                     className="p-2 rounded-lg transition-all text-slate-400 hover:text-blue-600 hover:bg-blue-50"
@@ -852,28 +915,32 @@ export default function OrdersPage() {
                                                         <ClipboardList className="w-4 h-4" />
                                                     </button>
                                                 )}
-                                                <button
-                                                    onClick={() => (order.status === 'DRAFT' || user?.role?.toLowerCase() === 'administrator') && handleEditOrder(order)}
-                                                    disabled={order.status !== 'DRAFT' && user?.role?.toLowerCase() !== 'administrator'}
-                                                    className={`p-2 rounded-lg transition-all ${order.status === 'DRAFT' || user?.role?.toLowerCase() === 'administrator'
-                                                        ? 'text-slate-400 hover:text-orange-600 hover:bg-orange-50 cursor-pointer'
-                                                        : 'text-slate-200 cursor-not-allowed opacity-40 pointer-events-none'
-                                                        }`}
-                                                    title={order.status === 'DRAFT' || user?.role?.toLowerCase() === 'administrator' ? "Ubah" : "Tidak dapat diubah (Sudah Disetujui)"}
-                                                >
-                                                    <Edit className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => (order.status === 'DRAFT' || user?.role?.toLowerCase() === 'administrator') && handleDeleteOrder(order.id)}
-                                                    disabled={order.status !== 'DRAFT' && user?.role?.toLowerCase() !== 'administrator'}
-                                                    className={`p-2 rounded-lg transition-all ${order.status === 'DRAFT' || user?.role?.toLowerCase() === 'administrator'
-                                                        ? 'text-slate-400 hover:text-red-600 hover:bg-red-50 cursor-pointer'
-                                                        : 'text-slate-200 cursor-not-allowed opacity-40 pointer-events-none'
-                                                        }`}
-                                                    title={order.status === 'DRAFT' || user?.role?.toLowerCase() === 'administrator' ? "Hapus" : "Tidak dapat dihapus (Sudah Disetujui)"}
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
+                                                {hasPermission('orders.edit') && (
+                                                    <button
+                                                        onClick={() => (order.status === 'DRAFT' || ['administrator', 'it support'].includes(user?.role?.toLowerCase() || '')) && handleEditOrder(order)}
+                                                        disabled={order.status !== 'DRAFT' && !['administrator', 'it support'].includes(user?.role?.toLowerCase() || '')}
+                                                        className={`p-2 rounded-lg transition-all ${order.status === 'DRAFT' || ['administrator', 'it support'].includes(user?.role?.toLowerCase() || '')
+                                                            ? 'text-slate-400 hover:text-orange-600 hover:bg-orange-50 cursor-pointer'
+                                                            : 'text-slate-200 cursor-not-allowed opacity-40 pointer-events-none'
+                                                            }`}
+                                                        title={order.status === 'DRAFT' || ['administrator', 'it support'].includes(user?.role?.toLowerCase() || '') ? "Ubah" : "Tidak dapat diubah (Sudah Disetujui)"}
+                                                    >
+                                                        <Edit className="w-4 h-4" />
+                                                    </button>
+                                                )}
+                                                {hasPermission('orders.delete') && (
+                                                    <button
+                                                        onClick={() => (order.status === 'DRAFT' || ['administrator', 'it support'].includes(user?.role?.toLowerCase() || '')) && handleDeleteOrder(order.id)}
+                                                        disabled={order.status !== 'DRAFT' && !['administrator', 'it support'].includes(user?.role?.toLowerCase() || '')}
+                                                        className={`p-2 rounded-lg transition-all ${order.status === 'DRAFT' || ['administrator', 'it support'].includes(user?.role?.toLowerCase() || '')
+                                                            ? 'text-slate-400 hover:text-red-600 hover:bg-red-50 cursor-pointer'
+                                                            : 'text-slate-200 cursor-not-allowed opacity-40 pointer-events-none'
+                                                            }`}
+                                                        title={order.status === 'DRAFT' || ['administrator', 'it support'].includes(user?.role?.toLowerCase() || '') ? "Hapus" : "Tidak dapat dihapus (Sudah Disetujui)"}
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
                                     </tr>
@@ -949,29 +1016,54 @@ export default function OrdersPage() {
                         />
                     </div>
 
-                    {modalMode === 'view' && orders.find(o => o.id === selectedOrderId)?.status === 'APPROVED' && (
+                    {modalMode === 'view' && (
                         <div className="p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-[2rem] border border-blue-100 shadow-inner group transition-all animate-in zoom-in duration-500">
                             <div className="w-full space-y-2">
                                 <label className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
-                                    <Server className="w-3 h-3" /> Manpro Tracking URL
+                                    <Server className="w-3 h-3" /> Manpro Document & Tracking
                                 </label>
-                                <div className="relative">
-                                    <input
-                                        type="url"
-                                        value={manproUrl}
-                                        onChange={(e) => setManproUrl(e.target.value)}
-                                        placeholder="Masukkan URL Manpro (e.g. https://manpro.systems/view/login/...)"
-                                        className="w-full pl-5 pr-12 py-3.5 bg-white border-2 border-blue-100 rounded-2xl focus:ring-4 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all font-bold text-slate-800 text-sm italic"
-                                    />
+                                <div className="flex gap-2">
+                                    <div className="relative flex-1">
+                                        <input
+                                            type="url"
+                                            value={manproUrl}
+                                            readOnly
+                                            disabled
+                                            placeholder="Link Manpro (Otomatis terisi jika klik tombol di samping)"
+                                            className="w-full pl-5 pr-12 py-3.5 bg-slate-100 border-2 border-slate-200 rounded-2xl outline-none transition-all font-bold text-slate-500 text-sm italic cursor-not-allowed"
+                                        />
+                                        <button
+                                            onClick={handleSaveManproUrl}
+                                            disabled={savingManproUrl}
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 disabled:opacity-50"
+                                            title="Simpan Link"
+                                        >
+                                            {savingManproUrl ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                        </button>
+                                    </div>
                                     <button
-                                        onClick={handleSaveManproUrl}
-                                        disabled={savingManproUrl}
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 disabled:opacity-50"
-                                        title="Simpan Link"
+                                        type="button"
+                                        onClick={() => {
+                                            const order = orders.find(o => o.id === selectedOrderId);
+                                            if (order) openCreateManproModal(order);
+                                        }}
+                                        className="bg-emerald-600 text-white px-5 rounded-2xl text-xs font-black uppercase hover:bg-emerald-700 transition-all flex items-center gap-2 shadow-lg shadow-emerald-100 active:scale-95"
                                     >
-                                        {savingManproUrl ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                        <PenTool className="w-4 h-4" />
+                                        Buat di Manpro
                                     </button>
                                 </div>
+                                {manproUrl && (
+                                    <a
+                                        href={manproUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-[10px] font-bold text-blue-600 hover:underline flex items-center gap-1 mt-1 ml-1"
+                                    >
+                                        <ExternalLink className="w-3 h-3" />
+                                        Buka Link di Tab Baru
+                                    </a>
+                                )}
                             </div>
                         </div>
                     )}
@@ -1118,7 +1210,7 @@ export default function OrdersPage() {
 
                     <div className="flex justify-between items-center pt-6 border-t border-slate-100">
                         <div className="flex gap-2">
-                            {modalMode === 'view' && hasPermission('orders.approve') && (selectedOrderId && (orders.find(o => o.id === selectedOrderId)?.status !== 'APPROVED' || user?.role?.toLowerCase() === 'administrator')) && (
+                            {modalMode === 'view' && hasPermission('orders.approve') && (selectedOrderId && (orders.find(o => o.id === selectedOrderId)?.status !== 'APPROVED' || ['administrator', 'it support'].includes(user?.role?.toLowerCase() || ''))) && (
                                 <>
                                     <button
                                         type="button"
@@ -2192,6 +2284,183 @@ export default function OrdersPage() {
                     </div>
                 )
             }
+            {/* Manpro Creation Modal */}
+            <Modal
+                isOpen={isManproModalOpen}
+                onClose={() => setIsManproModalOpen(false)}
+                title="Tambahkan Isu Baru (Manpro)"
+                size="lg"
+            >
+                <div className="space-y-4">
+                    <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 mb-4">
+                        <p className="text-xs font-bold text-amber-800 flex items-center gap-2">
+                            <AlertCircle className="w-4 h-4" />
+                            Sistem akan otomatis login dan membuat dokumen di Manpro untuk Anda.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="col-span-2">
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-1">Judul *</label>
+                            <input
+                                type="text"
+                                className="w-full bg-white border border-slate-200 p-2.5 rounded-xl text-xs font-medium text-slate-900 focus:ring-2 focus:ring-blue-500"
+                                value={manproForm.judul}
+                                onChange={(e) => setManproForm({ ...manproForm, judul: e.target.value })}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-1">Kategori *</label>
+                            <select
+                                className="w-full bg-white border border-slate-200 p-2.5 rounded-xl text-xs font-medium text-slate-900"
+                                value={manproForm.kategori}
+                                onChange={(e) => setManproForm({ ...manproForm, kategori: e.target.value })}
+                            >
+                                <option>General</option>
+                                <option>Disposisi BOD</option>
+                                <option>Lain-lain</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-1">Prioritas</label>
+                            <select
+                                className="w-full bg-white border border-slate-200 p-2.5 rounded-xl text-xs font-medium text-slate-900"
+                                value={manproForm.prioritas}
+                                onChange={(e) => setManproForm({ ...manproForm, prioritas: e.target.value })}
+                            >
+                                <option>Tinggi</option>
+                                <option>Sedang</option>
+                                <option>Rendah</option>
+                            </select>
+                        </div>
+
+                        <div className="col-span-2">
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-1">Ditujukan Kepada *</label>
+                            <input
+                                type="text"
+                                placeholder="Masukkan nama (Contoh: Esa Setiawan)"
+                                className="w-full bg-white border border-slate-200 p-2.5 rounded-xl text-xs font-medium text-slate-900"
+                                value={manproForm.ditujukan_kepada}
+                                onChange={(e) => setManproForm({ ...manproForm, ditujukan_kepada: e.target.value })}
+                            />
+                        </div>
+
+                        <div className="col-span-2">
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-1">CC</label>
+                            <input
+                                type="text"
+                                placeholder="Masukkan nama CC (Bisa lebih dari satu)"
+                                className="w-full bg-white border border-slate-200 p-2.5 rounded-xl text-xs font-medium text-slate-900"
+                                value={manproForm.cc}
+                                onChange={(e) => setManproForm({ ...manproForm, cc: e.target.value })}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-1">Tanggal Target</label>
+                            <input
+                                type="date"
+                                className="w-full bg-white border border-slate-200 p-2.5 rounded-xl text-xs font-medium text-slate-900"
+                                value={manproForm.tanggal_target}
+                                onChange={(e) => setManproForm({ ...manproForm, tanggal_target: e.target.value })}
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-1">Unggah Lampiran</label>
+                            <div className="relative group">
+                                <input
+                                    type="file"
+                                    id="manpro-file"
+                                    className="hidden"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => {
+                                                setManproForm({
+                                                    ...manproForm,
+                                                    lampiran: reader.result as string,
+                                                    lampiranName: file.name
+                                                });
+                                            };
+                                            reader.readAsDataURL(file);
+                                        }
+                                    }}
+                                />
+                                <label
+                                    htmlFor="manpro-file"
+                                    className="flex items-center gap-2 w-full bg-white border border-slate-200 p-2.5 rounded-xl text-[10px] font-bold text-slate-600 cursor-pointer hover:bg-slate-50 transition-all border-dashed"
+                                >
+                                    <RefreshCcw className="w-3.5 h-3.5 text-blue-500" />
+                                    {manproForm.lampiranName ? manproForm.lampiranName : 'Pilih File (Gambar/PDF)'}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-1">Deskripsi</label>
+                        <textarea
+                            className="w-full bg-white border border-slate-200 p-2.5 rounded-xl text-xs font-medium text-slate-900 h-32"
+                            value={manproForm.deskripsi}
+                            onChange={(e) => setManproForm({ ...manproForm, deskripsi: e.target.value })}
+                        />
+                    </div>
+
+                    <div className="border-t border-slate-100 pt-4 mt-2">
+                        <label className="text-[10px] font-black text-slate-600 uppercase tracking-widest block mb-3">Konfirmasi Akun Manpro (Jika Berbeda)</label>
+                        <div className="grid grid-cols-2 gap-3">
+                            <input
+                                type="text"
+                                placeholder="Username Manpro"
+                                className="bg-white border border-slate-200 p-2.5 rounded-xl text-xs font-medium text-slate-900"
+                                value={manproCreds.username}
+                                onChange={(e) => setManproCreds({ ...manproCreds, username: e.target.value })}
+                            />
+                            <input
+                                type="password"
+                                placeholder="Password Manpro"
+                                className="bg-white border border-slate-200 p-2.5 rounded-xl text-xs font-medium text-slate-900"
+                                value={manproCreds.password}
+                                onChange={(e) => setManproCreds({ ...manproCreds, password: e.target.value })}
+                            />
+                        </div>
+
+                        <div className="flex items-center gap-2 mt-4 px-1">
+                            <input
+                                type="checkbox"
+                                id="dry-run-toggle"
+                                className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                checked={isDryRun}
+                                onChange={(e) => setIsDryRun(e.target.checked)}
+                            />
+                            <label htmlFor="dry-run-toggle" className="text-xs font-bold text-slate-700 cursor-pointer select-none">
+                                Mode Simulasi (Dry Run) <span className="text-slate-400 font-normal">- Hanya mengisi form, tidak menekan tombol submit.</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-6">
+                        <button
+                            onClick={() => setIsManproModalOpen(false)}
+                            className="px-6 py-2.5 bg-slate-100 text-slate-600 font-black uppercase text-xs rounded-xl hover:bg-slate-200"
+                        >
+                            Batal
+                        </button>
+                        <button
+                            onClick={handleCreateManproIssue}
+                            disabled={creatingManpro}
+                            className={`px-8 py-2.5 ${isDryRun ? 'bg-blue-600 shadow-blue-200' : 'bg-emerald-600 shadow-emerald-200'} text-white font-black uppercase text-xs rounded-xl hover:opacity-90 flex items-center gap-2 shadow-lg transition-all`}
+                        >
+                            {creatingManpro ? <Loader2 className="w-4 h-4 animate-spin" /> : <PenTool className="w-4 h-4" />}
+                            {creatingManpro ? 'Sedang Memproses...' : (isDryRun ? 'Simulasi Dokumen' : 'Submit ke Manpro')}
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </div >
     );
 }

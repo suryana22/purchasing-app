@@ -23,3 +23,7 @@
 **/coverage/
 **/out/
 **/build/
+**/debug_screenshots/
+**/manpro_cookies.json
+**/manpro_*.png
+**/manpro_dump.html

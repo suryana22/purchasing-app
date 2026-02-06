@@ -12,12 +12,34 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  const getApiUrl = (endpoint: string) => {
+    let base = process.env.NEXT_PUBLIC_MASTER_DATA_API || '';
+
+    // If running in browser and base is empty or points to another IP, 
+    // fallback to current host if we are on localhost
+    if (typeof window !== 'undefined') {
+      if (!base || base.includes('10.200.111.180')) {
+        const host = window.location.hostname;
+        base = `http://${host}:4001`;
+      }
+    }
+
+    // Final fallback if still empty
+    if (!base) base = 'http://localhost:4001';
+
+    // Normalize: remove trailing /api if it exists to avoid duplication
+    const normalizedBase = base.replace(/\/api\/?$/, '').replace(/\/$/, '');
+
+    return `${normalizedBase}/api${endpoint}`;
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_MASTER_DATA_API || 'http://localhost:4001'}/api/auth/login`, {
+      const url = getApiUrl('/auth/login');
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

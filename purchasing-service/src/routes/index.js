@@ -12,6 +12,8 @@ router.get('/orders/:id', orderController.findOne);
 router.put('/orders/:id', orderController.update);
 router.delete('/orders/:id', orderController.delete);
 router.post('/orders/:id/approve', orderController.approve);
+router.post('/orders/:id/track', orderController.trackOrder);
+router.post('/orders/:id/create-manpro', orderController.createManproIssue);
 
 const notificationController = require('../controllers/notificationController');
 router.get('/notifications', notificationController.findAll);

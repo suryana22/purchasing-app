@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Loader2, Search, Package, Building, User, Calendar, AlertCircle, RefreshCcw } from 'lucide-react';
+import { Loader2, Search, Package, Building, User, Calendar, AlertCircle, RefreshCcw, CheckCircle2, ArrowRight, ExternalLink, XCircle } from 'lucide-react';
 import Modal from '@/components/Modal';
 import Toast from '@/components/Toast';
 import { useToast } from '@/hooks/useToast';
@@ -27,10 +27,15 @@ interface Order {
     grand_total: number;
     status: string;
     manpro_url?: string;
+    manpro_current_position?: string;
+    manpro_is_closed?: boolean;
+    manpro_manual_status?: string;
+    manpro_post_approval_url?: string;
+    manpro_post_is_closed?: boolean;
 }
 
 export default function TrackingPage() {
-    const { authenticatedFetch } = useAuth();
+    const { authenticatedFetch, hasPermission, user } = useAuth();
     const [orders, setOrders] = useState<Order[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [departments, setDepartments] = useState<Department[]>([]);
@@ -42,7 +47,17 @@ export default function TrackingPage() {
     const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
     const [trackingImageUrl, setTrackingImageUrl] = useState<string | null>(null);
     const [loadingTracking, setLoadingTracking] = useState(false);
+    const [postApprovalUrl, setPostApprovalUrl] = useState('');
     const [manproCreds, setManproCreds] = useState({ username: '', password: '' });
+
+    // Update Status State
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+    const [selectedPosition, setSelectedPosition] = useState('');
+    const [isClosed, setIsClosed] = useState(false);
+    const [newUrl, setNewUrl] = useState('');
+    const [updating, setUpdating] = useState(false);
+
+    // Auth for admin check
 
     const { toasts, removeToast, error, success } = useToast();
 
@@ -76,11 +91,10 @@ export default function TrackingPage() {
 
     const fetchData = async () => {
         try {
-            const [deptRes, partsRes, ordersRes, settingsRes] = await Promise.all([
+            const [deptRes, partsRes, ordersRes] = await Promise.all([
                 authenticatedFetch(getApiUrl('/departments', 'master')),
                 authenticatedFetch(getApiUrl('/partners', 'master')),
-                authenticatedFetch(getApiUrl('/orders', 'purchasing')),
-                authenticatedFetch(getApiUrl('/settings', 'master'))
+                authenticatedFetch(getApiUrl('/orders', 'purchasing'))
             ]);
 
             if (deptRes.ok && partsRes.ok && ordersRes.ok) {
@@ -88,22 +102,10 @@ export default function TrackingPage() {
                 const parts = await partsRes.json();
                 const ordersData = await ordersRes.json();
 
-                if (settingsRes.ok) {
-                    const settingsData = await settingsRes.json();
-                    const creds = { username: '', password: '' };
-                    settingsData.forEach((s: any) => {
-                        if (s.key === 'manpro_username') creds.username = s.value;
-                        if (s.key === 'manpro_password') creds.password = s.value;
-                    });
-                    setManproCreds(creds);
-                }
-
                 setDepartments(depts);
                 setPartners(parts);
-                // Only show orders that have a Manpro URL (and are Approved/Pending)
-                setOrders(ordersData.filter((o: Order) =>
-                    (o.status === 'APPROVED' || o.status === 'PENDING') && o.manpro_url
-                ));
+                // Only show orders that have a Manpro URL
+                setOrders(ordersData.filter((o: Order) => !!o.manpro_url));
             }
         } catch (err) {
             console.error('Error fetching data:', err);
@@ -118,7 +120,69 @@ export default function TrackingPage() {
 
     const handleTrackOrder = async (order: Order) => {
         setTrackingOrder(order);
+        setPostApprovalUrl(order.manpro_post_approval_url || '');
         setIsTrackingModalOpen(true);
+    };
+
+    const handleAutoTrack = async (order: Order | null) => {
+        if (!order) return;
+        setLoadingTracking(true);
+        try {
+            const url = getApiUrl(`/orders/${order.id}/track`);
+            const response = await authenticatedFetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    manpro_url: order.manpro_url,
+                    username: manproCreds.username,
+                    password: manproCreds.password
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                success('Status tracking berhasil diperbarui otomatis');
+                // Update local state and list
+                const updatedOrder = { ...order, ...data };
+                setTrackingOrder(updatedOrder);
+                setOrders(prev => prev.map(o => o.id === order.id ? updatedOrder : o));
+            } else {
+                const errData = await response.json();
+                error(errData.error || 'Gagal melacak otomatis');
+            }
+        } catch (err) {
+            console.error(err);
+            error('Terjadi kesalahan koneksi saat tracking otomatis');
+        } finally {
+            setLoadingTracking(false);
+        }
+    };
+
+    const handleUpdatePostApprovalUrl = async () => {
+        if (!trackingOrder) return;
+        try {
+            const url = getApiUrl(`/orders/${trackingOrder.id}`, 'purchasing');
+            const response = await authenticatedFetch(url, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    manpro_post_approval_url: postApprovalUrl
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                success('Link proses lanjutan berhasil diperbarui');
+                const updatedOrder = { ...trackingOrder, ...data };
+                setTrackingOrder(updatedOrder);
+                setOrders(prev => prev.map(o => o.id === trackingOrder.id ? updatedOrder : o));
+            } else {
+                error('Gagal memperbarui link');
+            }
+        } catch (err) {
+            console.error(err);
+            error('Terjadi kesalahan koneksi');
+        }
     };
 
     const filteredOrders = orders.filter(order =>
@@ -155,7 +219,7 @@ export default function TrackingPage() {
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-blue-100 italic">
-                            Hanya menampilkan order yang disetujui / diproses
+                            Hanya menampilkan order yang memiliki link manpro
                         </div>
                     </div>
                 </div>
@@ -243,76 +307,149 @@ export default function TrackingPage() {
                 size="lg"
             >
                 <div className="space-y-6">
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100 shadow-inner">
-                        <div className="flex items-start gap-4">
-                            <div className="p-3 bg-white rounded-xl shadow-sm text-blue-600">
-                                <RefreshCcw className="w-6 h-6 animate-pulse" />
+                    {/* Status Display */}
+                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <div className="flex items-center gap-4 mb-4">
+                            <div className="p-3 bg-white rounded-xl shadow-sm border border-slate-100">
+                                <Package className="w-6 h-6 text-blue-600" />
                             </div>
-                            <div className="space-y-1">
-                                <h3 className="font-black text-slate-800 text-lg">Arahkan ke Manpro System</h3>
-                                <p className="text-sm text-slate-600 leading-relaxed font-medium">
-                                    Anda akan diarahkan ke sistem Manpro untuk melihat status pengiriman secara detail.
-                                    Jika sesi Anda habis, gunakan kredensial di bawah ini untuk login kembali.
-                                </p>
+                            <div>
+                                <h3 className="font-black text-slate-800 text-lg uppercase">Status Dokumen</h3>
+                                <p className="text-xs font-bold text-slate-500">Posisi dokumen berdasarkan pantauan Manpro</p>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="p-4 rounded-xl border-2 border-slate-100 hover:border-blue-200 transition-all group">
-                            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 block">Username</label>
-                            <div className="flex items-center justify-between">
-                                <span className="font-bold text-slate-800 font-mono text-sm">{manproCreds.username || '-'}</span>
+                        <div className="flex flex-col gap-3">
+                            <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-100">
+                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Posisi Saat Ini</span>
+                                <span className="font-black text-slate-800">{trackingOrder?.manpro_current_position || '-'}</span>
+                            </div>
+
+                            {/* Step 1: Director Approval */}
+                            {trackingOrder?.manpro_manual_status === 'CANCELLED' ? (
+                                <div className="p-4 rounded-xl border-l-4 bg-red-50 border-red-500 text-red-700">
+                                    <h4 className="font-black uppercase tracking-tight mb-1 flex items-center gap-2">
+                                        <XCircle className="w-4 h-4" /> Dokumen Dibatalkan (Canceled)
+                                    </h4>
+                                    <p className="text-xs font-medium opacity-80 whitespace-pre-wrap">
+                                        {trackingOrder.manpro_current_position ? trackingOrder.manpro_current_position.replace('Canceled by Manpro: ', '') : 'Dokumen telah dibatalkan di Manpro.'}
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className={`p-4 rounded-xl border-l-4 ${trackingOrder?.manpro_manual_status === 'APPROVED_DIRECTOR'
+                                    ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
+                                    : 'bg-amber-50 border-amber-500 text-amber-700'
+                                    }`}>
+                                    <h4 className="font-black uppercase tracking-tight mb-1 flex items-center gap-2">
+                                        {trackingOrder?.manpro_manual_status === 'APPROVED_DIRECTOR'
+                                            ? <><CheckCircle2 className="w-4 h-4" /> Disetujui Direktur Utama</>
+                                            : <><Loader2 className="w-4 h-4 animate-spin" /> Menunggu Persetujuan Direktur Utama</>
+                                        }
+                                    </h4>
+                                    <p className="text-xs font-medium opacity-80">
+                                        {trackingOrder?.manpro_manual_status === 'APPROVED_DIRECTOR'
+                                            ? 'Dokumen telah disetujui (Closed) dan tuntas diproses oleh Direktur.'
+                                            : 'Dokumen sedang dalam proses review/tanda tangan di Manpro.'
+                                        }
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Step 2: PO Rumga Process (Conditional) - Hide if Canceled */}
+                            {trackingOrder?.manpro_manual_status === 'APPROVED_DIRECTOR' && (
+                                <div className={`p-4 rounded-xl border-l-4 ${trackingOrder?.manpro_post_is_closed
+                                    ? 'bg-emerald-50 border-emerald-500 text-emerald-700'
+                                    : 'bg-amber-50 border-amber-500 text-amber-700'
+                                    }`}>
+                                    <h4 className="font-black uppercase tracking-tight mb-1 flex items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2">
+                                            {trackingOrder?.manpro_post_is_closed
+                                                ? <><CheckCircle2 className="w-4 h-4" /> Proses PO Rumga (Selesai)</>
+                                                : <><Loader2 className="w-4 h-4 animate-spin" /> Proses PO Rumga (In Progress/Link Ready)</>
+                                            }
+                                        </div>
+                                        {trackingOrder?.manpro_post_approval_url && (
+                                            <a
+                                                href={trackingOrder.manpro_post_approval_url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="bg-emerald-600 text-white p-1.5 rounded-lg hover:bg-emerald-700 transition-colors"
+                                                title="Buka Link Manpro"
+                                            >
+                                                <ExternalLink className="w-3.5 h-3.5" />
+                                            </a>
+                                        )}
+                                    </h4>
+
+                                    <div className="mt-3 space-y-3">
+                                        {/* Removed redundant read-only URL display */}
+
+                                        {/* Admin Input for new URL - Restricted to Approvers/Admins */}
+                                        {hasPermission('orders.approve') && (
+                                            <div className="pt-2 border-t border-blue-100/30">
+                                                <label className="text-[10px] font-black uppercase mb-1 block opacity-70">
+                                                    {trackingOrder?.manpro_post_approval_url ? 'Update Link Proses PO Rumga' : 'Input Link Proses PO Rumga'}
+                                                </label>
+                                                <div className="flex gap-2">
+                                                    <input
+                                                        type="text"
+                                                        value={postApprovalUrl}
+                                                        onChange={(e) => setPostApprovalUrl(e.target.value)}
+                                                        placeholder="Tempel link Manpro baru di sini..."
+                                                        className="flex-1 px-3 py-2 bg-white border border-blue-200 rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500"
+                                                    />
+                                                    <button
+                                                        onClick={handleUpdatePostApprovalUrl}
+                                                        className="px-4 py-2 bg-blue-600 text-white text-[10px] font-black uppercase rounded-lg hover:bg-blue-700 transition-all"
+                                                    >
+                                                        Simpan
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Admin Update Button - Restricted to Approvers/Admins */}
+                        {hasPermission('orders.approve') && (
+                            <div className="mt-4 pt-4 border-t border-slate-200">
                                 <button
-                                    onClick={() => { navigator.clipboard.writeText(manproCreds.username); success('Username disalin'); }}
-                                    className="text-blue-500 hover:text-blue-700 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    title="Salin Username"
+                                    onClick={() => handleAutoTrack(trackingOrder)}
+                                    disabled={loadingTracking}
+                                    className="w-full py-3 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-900 transition-colors text-xs uppercase tracking-wider flex items-center justify-center gap-2"
                                 >
-                                    <RefreshCcw className="w-4 h-4 rotate-90" />
+                                    {loadingTracking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCcw className="w-3.5 h-3.5" />}
+                                    {loadingTracking ? 'Sedang Melacak...' : 'Update Status Tracking (Automated)'}
                                 </button>
                             </div>
-                        </div>
-                        <div className="p-4 rounded-xl border-2 border-slate-100 hover:border-blue-200 transition-all group">
-                            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 block">Password</label>
-                            <div className="flex items-center justify-between">
-                                <span className="font-bold text-slate-800 font-mono text-sm">{'•'.repeat(manproCreds.password.length) || '-'}</span>
-                                <button
-                                    onClick={() => { navigator.clipboard.writeText(manproCreds.password); success('Password disalin'); }}
-                                    className="text-blue-500 hover:text-blue-700 opacity-0 group-hover:opacity-100 transition-opacity"
-                                    title="Salin Password"
-                                >
-                                    <RefreshCcw className="w-4 h-4 rotate-90" />
-                                </button>
-                            </div>
-                        </div>
+                        )}
                     </div>
 
                     <div className="pt-4 border-t border-slate-100 flex justify-end">
-                        {trackingOrder?.manpro_url && (
-                            <a
-                                href={trackingOrder.manpro_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="px-8 py-4 bg-blue-600 text-white font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center gap-3"
-                                onClick={() => setIsTrackingModalOpen(false)}
-                            >
-                                <Search className="w-5 h-5" />
-                                Buka Link Tracking
-                            </a>
-                        )}
+                        <button
+                            onClick={() => setIsTrackingModalOpen(false)}
+                            className="px-6 py-2 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors"
+                        >
+                            Tutup
+                        </button>
+                        {/* Buka Link Tracking button removed as per request */}
                     </div>
                 </div>
             </Modal>
 
             {/* Toast Notifications */}
-            {toasts.map(toast => (
-                <Toast
-                    key={toast.id}
-                    message={toast.message}
-                    type={toast.type}
-                    onClose={() => removeToast(toast.id)}
-                />
-            ))}
+            {
+                toasts.map(toast => (
+                    <Toast
+                        key={toast.id}
+                        message={toast.message}
+                        type={toast.type}
+                        onClose={() => removeToast(toast.id)}
+                    />
+                ))
+            }
         </div>
     );
 }
