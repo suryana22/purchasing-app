@@ -34,3 +34,14 @@
 **/manpro_cookies.json
 **/manpro_*.png
 **/manpro_dump.html
+
+# Python
+**/__pycache__/
+**/.venv/
+**/venv/
+**/.env
+**/.pytest_cache/
+**/*.pyc
+
+# Logs
+**/*.log
