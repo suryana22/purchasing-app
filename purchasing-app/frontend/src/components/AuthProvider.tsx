@@ -125,12 +125,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const authenticatedFetch = async (url: string, options: RequestInit = {}) => {
         const token = localStorage.getItem('token');
 
+        // Normalize URL for Universal Access (Proxy)
+        // This converts absolute API URLs into relative proxy paths
+        let finalUrl = url;
+        if (typeof window !== 'undefined') {
+            const masterDataApi = process.env.NEXT_PUBLIC_MASTER_DATA_API || '4001';
+            const purchasingApi = process.env.NEXT_PUBLIC_PURCHASING_API || '4002';
+            const trackingApi = process.env.NEXT_PUBLIC_TRACKING_API || '4003';
+
+            if (url.includes(':4001') || (masterDataApi && url.startsWith(masterDataApi))) {
+                finalUrl = url.replace(/.*:4001\/api/, '/api/master-data').replace(masterDataApi + '/api', '/api/master-data');
+            } else if (url.includes(':4002') || (purchasingApi && url.startsWith(purchasingApi))) {
+                finalUrl = url.replace(/.*:4002\/api/, '/api/purchasing').replace(purchasingApi + '/api', '/api/purchasing');
+            } else if (url.includes(':4003') || (trackingApi && url.startsWith(trackingApi))) {
+                finalUrl = url.replace(/.*:4003\/api/, '/api/tracking').replace(trackingApi + '/api', '/api/tracking');
+            }
+        }
+
         const headers = new Headers(options.headers || {});
         if (token) {
             headers.set('Authorization', `Bearer ${token}`);
         }
 
-        const response = await fetch(url, {
+        const response = await fetch(finalUrl, {
             ...options,
             headers
         });

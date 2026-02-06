@@ -13,24 +13,11 @@ export default function LoginPage() {
   const [error, setError] = useState('');
 
   const getApiUrl = (endpoint: string) => {
-    let base = process.env.NEXT_PUBLIC_MASTER_DATA_API || '';
-
-    // If running in browser and base is empty or points to another IP, 
-    // fallback to current host if we are on localhost
-    if (typeof window !== 'undefined') {
-      if (!base || base.includes('10.200.111.180')) {
-        const host = window.location.hostname;
-        base = `http://${host}:4001`;
-      }
-    }
-
-    // Final fallback if still empty
-    if (!base) base = 'http://localhost:4001';
-
-    // Normalize: remove trailing /api if it exists to avoid duplication
-    const normalizedBase = base.replace(/\/api\/?$/, '').replace(/\/$/, '');
-
-    return `${normalizedBase}/api${endpoint}`;
+    // Use relative paths to trigger Next.js rewrites/proxy
+    // This solves the IP vs Domain access issue
+    const prefix = '/api/master-data';
+    const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    return `${prefix}${normalizedEndpoint}`;
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -39,6 +26,7 @@ export default function LoginPage() {
 
     try {
       const url = getApiUrl('/auth/login');
+      console.log('Attempting login to:', url);
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -47,7 +35,9 @@ export default function LoginPage() {
         body: JSON.stringify({ username, password }),
       });
 
+      console.log('Login response status:', response.status);
       const data = await response.json();
+      console.log('Login response data:', data);
 
       if (response.ok) {
         // Store user info and token in localStorage
