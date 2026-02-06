@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict L711wd80LrvC1fQ9fLCDyk2vAyxvo1r4TgBiicNvGs9tI4HtPkj0DM3dbXOS6fY
+\restrict gR14YueiBk4HERF9vCLwZv13sPoMRoSdB9fxDVo0aqa1oz8KTWQlz8uIGSnI49S
 
 -- Dumped from database version 15.15
 -- Dumped by pg_dump version 15.15
@@ -271,11 +271,32 @@ CREATE TABLE public."Orders" (
     notes text,
     "deletedAt" timestamp with time zone,
     approved_by integer,
-    approval_date timestamp with time zone
+    approval_date timestamp with time zone,
+    manpro_url text,
+    manpro_current_position character varying(255),
+    manpro_is_closed boolean DEFAULT false,
+    manpro_manual_status character varying(255),
+    manpro_post_approval_url text,
+    user_id integer,
+    manpro_post_is_closed boolean DEFAULT false
 );
 
 
 ALTER TABLE public."Orders" OWNER TO postgres;
+
+--
+-- Name: COLUMN "Orders".manpro_current_position; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."Orders".manpro_current_position IS 'Suryana, Esa Setiawan, Eri Wijaya, Yulisar Khiat';
+
+
+--
+-- Name: COLUMN "Orders".user_id; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public."Orders".user_id IS 'The user who created this order';
+
 
 --
 -- Name: Orders_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
@@ -428,6 +449,44 @@ ALTER TABLE public."Roles_id_seq" OWNER TO postgres;
 --
 
 ALTER SEQUENCE public."Roles_id_seq" OWNED BY public."Roles".id;
+
+
+--
+-- Name: SystemSettings; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."SystemSettings" (
+    id integer NOT NULL,
+    key character varying(255) NOT NULL,
+    value text,
+    description character varying(255),
+    "createdAt" timestamp with time zone NOT NULL,
+    "updatedAt" timestamp with time zone NOT NULL
+);
+
+
+ALTER TABLE public."SystemSettings" OWNER TO postgres;
+
+--
+-- Name: SystemSettings_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."SystemSettings_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."SystemSettings_id_seq" OWNER TO postgres;
+
+--
+-- Name: SystemSettings_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."SystemSettings_id_seq" OWNED BY public."SystemSettings".id;
 
 
 --
@@ -678,6 +737,13 @@ ALTER TABLE ONLY public."Roles" ALTER COLUMN id SET DEFAULT nextval('public."Rol
 
 
 --
+-- Name: SystemSettings id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."SystemSettings" ALTER COLUMN id SET DEFAULT nextval('public."SystemSettings_id_seq"'::regclass);
+
+
+--
 -- Name: Users id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -755,6 +821,41 @@ COPY public."ActivityLogs" (id, user_id, username, action, module, target_id, de
 43	1	admin	UPDATE	users	4	{"username":"beta_tester","password":"$2b$10$fzLMyyeIqeyVDecWxH9qqur21SC8ldIYOmVnOTV4AC0QHSW4IVfzG","first_name":"Beta","last_name":"Tester","role_id":3}	::ffff:172.20.0.1	2026-02-04 04:00:15.141+00	2026-02-04 04:00:15.141+00
 44	1	admin	DELETE	users	4	\N	::ffff:172.20.0.1	2026-02-04 04:00:49.266+00	2026-02-04 04:00:49.266+00
 45	1	admin	CREATE	users	7	{"username":"testing","role_id":2}	::ffff:172.20.0.1	2026-02-04 04:05:01.569+00	2026-02-04 04:05:01.569+00
+46	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1225326&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-04 07:28:32.011+00	2026-02-04 07:28:32.011+00
+47	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1160887&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-04 07:30:04.815+00	2026-02-04 07:30:04.815+00
+48	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1160887&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-04 07:38:39.308+00	2026-02-04 07:38:39.308+00
+49	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1173732&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-04 07:39:42.824+00	2026-02-04 07:39:42.824+00
+50	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1173732&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-04 07:44:39.469+00	2026-02-04 07:44:39.469+00
+51	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1173732&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-04 07:44:46.941+00	2026-02-04 07:44:46.941+00
+52	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1173732&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-04 07:45:25.597+00	2026-02-04 07:45:25.597+00
+53	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1171116&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-04 07:51:19.733+00	2026-02-04 07:51:19.733+00
+54	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1171116&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-04 08:01:20.89+00	2026-02-04 08:01:20.89+00
+55	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1171116&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-04 08:12:40.532+00	2026-02-04 08:12:40.532+00
+56	1	admin	UPDATE	SystemSetting	\N	{"settings":[{"key":"manpro_url","value":"https://manpro.systems/view/login"},{"key":"manpro_username","value":"udi"},{"key":"manpro_password","value":"Suryana@130221"}]}	::ffff:172.20.0.1	2026-02-04 08:15:54.088+00	2026-02-04 08:15:54.088+00
+57	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_post_approval_url":"https://manpro.systems/view/topic?i=1193756&pro_id=P0000000830"}	::ffff:172.20.0.1	2026-02-04 08:16:48.144+00	2026-02-04 08:16:48.144+00
+58	2	itsupport	UPDATE	Order	PO-20260203-002	{"manpro_post_approval_url":"https://manpro.systems/view/topic?i=1193756&pro_id=P0000000830"}	::ffff:172.20.0.1	2026-02-04 08:17:34.783+00	2026-02-04 08:17:34.783+00
+59	2	itsupport	UPDATE	Order	PO-20260203-002	{"manpro_post_approval_url":""}	::ffff:172.20.0.1	2026-02-04 08:20:00.026+00	2026-02-04 08:20:00.026+00
+60	7	testing	UPDATE	Order	PO-20260203-002	{"manpro_post_approval_url":"https://manpro.systems/view/topic?i=1193756&pro_id=P0000000830"}	::ffff:172.20.0.1	2026-02-04 08:21:31.967+00	2026-02-04 08:21:31.967+00
+61	7	testing	UPDATE	Order	PO-20260203-002	{"manpro_url":""}	::ffff:172.20.0.1	2026-02-04 08:27:16.168+00	2026-02-04 08:27:16.168+00
+62	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1225326&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-04 08:31:36.164+00	2026-02-04 08:31:36.164+00
+63	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1225326&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-04 08:32:37.703+00	2026-02-04 08:32:37.703+00
+64	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1160887&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-04 08:46:24.828+00	2026-02-04 08:46:24.828+00
+65	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_post_approval_url":"https://manpro.systems/view/topic?i=1193756&pro_id=P0000000830"}	::ffff:172.20.0.1	2026-02-05 02:22:00.222+00	2026-02-05 02:22:00.222+00
+66	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_post_approval_url":""}	::ffff:172.20.0.1	2026-02-05 02:36:27.369+00	2026-02-05 02:36:27.369+00
+67	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1225326&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-05 02:36:54.722+00	2026-02-05 02:36:54.722+00
+68	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_post_approval_url":""}	::ffff:172.20.0.1	2026-02-05 02:39:32.414+00	2026-02-05 02:39:32.414+00
+69	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_post_approval_url":""}	::ffff:172.20.0.1	2026-02-05 02:39:33.653+00	2026-02-05 02:39:33.653+00
+70	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_post_approval_url":""}	::ffff:172.20.0.1	2026-02-05 02:39:33.819+00	2026-02-05 02:39:33.819+00
+71	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_post_approval_url":""}	::ffff:172.20.0.1	2026-02-05 02:39:34.793+00	2026-02-05 02:39:34.793+00
+72	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_post_approval_url":""}	::ffff:172.20.0.1	2026-02-05 02:39:34.964+00	2026-02-05 02:39:34.964+00
+73	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_post_approval_url":""}	::ffff:172.20.0.1	2026-02-05 02:39:35.118+00	2026-02-05 02:39:35.118+00
+74	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_post_approval_url":""}	::ffff:172.20.0.1	2026-02-05 02:39:35.283+00	2026-02-05 02:39:35.283+00
+75	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1225326&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-05 02:39:50.945+00	2026-02-05 02:39:50.945+00
+76	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1225326&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-05 02:39:51.58+00	2026-02-05 02:39:51.58+00
+77	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_post_approval_url":""}	::ffff:172.20.0.1	2026-02-05 02:39:58.352+00	2026-02-05 02:39:58.352+00
+78	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":""}	::ffff:172.20.0.1	2026-02-05 04:11:28.855+00	2026-02-05 04:11:28.855+00
+79	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1235294&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-05 06:48:17.073+00	2026-02-05 06:48:17.073+00
+80	1	admin	UPDATE	Order	PO-20260203-002	{"manpro_url":"https://manpro.systems/view/topic?i=1237503&pro_id=P0000000748"}	::ffff:172.20.0.1	2026-02-06 07:48:16.9+00	2026-02-06 07:48:16.9+00
 \.
 
 
@@ -801,9 +902,9 @@ COPY public."OrderItems" (id, order_id, item_name, quantity, unit_price, total_p
 -- Data for Name: Orders; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public."Orders" (id, date, department_id, partner_id, status, total_amount, "createdAt", "updatedAt", subtotal, ppn, grand_total, order_number, notes, "deletedAt", approved_by, approval_date) FROM stdin;
-1	2026-02-03 06:55:44.527+00	2	1	APPROVED	0.00	2026-02-03 06:55:44.533+00	2026-02-03 07:34:21.772+00	605000.00	66550.00	671550.00	PO-20260203-001	PERGANTIAN ADAPTOR CHARGER LAPTOP	2026-02-03 07:39:44.714+00	1	2026-02-03 06:56:01.325+00
-2	2026-02-03 07:41:33.117+00	2	1	APPROVED	0.00	2026-02-03 07:41:33.118+00	2026-02-03 07:41:54.23+00	605000.00	66550.00	671550.00	PO-20260203-002	PENGGANTIAN ADAPTOR CHARGER	\N	1	2026-02-03 07:41:54.229+00
+COPY public."Orders" (id, date, department_id, partner_id, status, total_amount, "createdAt", "updatedAt", subtotal, ppn, grand_total, order_number, notes, "deletedAt", approved_by, approval_date, manpro_url, manpro_current_position, manpro_is_closed, manpro_manual_status, manpro_post_approval_url, user_id, manpro_post_is_closed) FROM stdin;
+1	2026-02-03 06:55:44.527+00	2	1	APPROVED	0.00	2026-02-03 06:55:44.533+00	2026-02-03 07:34:21.772+00	605000.00	66550.00	671550.00	PO-20260203-001	PERGANTIAN ADAPTOR CHARGER LAPTOP	2026-02-03 07:39:44.714+00	1	2026-02-03 06:56:01.325+00	\N	\N	f	\N	\N	1	f
+2	2026-02-03 07:41:33.117+00	2	1	APPROVED	0.00	2026-02-03 07:41:33.118+00	2026-02-06 07:48:17.328+00	605000.00	66550.00	671550.00	PO-20260203-002	PENGGANTIAN ADAPTOR CHARGER	\N	1	2026-02-04 07:45:21.485+00	https://manpro.systems/view/topic?i=1237503&pro_id=P0000000748	Suryana	t	PENDING_DIRECTOR		1	t
 \.
 
 
@@ -874,6 +975,12 @@ COPY public."Permissions" (id, name, description, "createdAt", "updatedAt", "del
 50	item_types.delete	Menghapus di Jenis Persediaan	2026-01-30 08:51:17.177+00	2026-01-30 08:51:17.177+00	\N
 51	item_types.approve	Menyetujui di Jenis Persediaan	2026-01-30 08:51:17.184+00	2026-01-30 08:51:17.184+00	\N
 52	orders.analysis	Membuat Analisa Teknis Permintaan	2026-02-03 06:47:29.935+00	2026-02-03 06:47:29.935+00	\N
+53	database.view	Melihat di Manajemen Database	2026-02-04 07:27:35.21+00	2026-02-04 07:27:35.21+00	\N
+54	database.create	Menambah di Manajemen Database	2026-02-04 07:27:35.239+00	2026-02-04 07:27:35.239+00	\N
+55	database.edit	Mengubah di Manajemen Database	2026-02-04 07:27:35.253+00	2026-02-04 07:27:35.253+00	\N
+56	database.delete	Menghapus di Manajemen Database	2026-02-04 07:27:35.262+00	2026-02-04 07:27:35.262+00	\N
+57	database.approve	Menyetujui di Manajemen Database	2026-02-04 07:27:35.276+00	2026-02-04 07:27:35.276+00	\N
+58	database.backup	Mendownload Backup Database (.sql)	2026-02-04 07:27:35.298+00	2026-02-04 07:27:35.298+00	\N
 \.
 
 
@@ -971,6 +1078,13 @@ COPY public."RolePermissions" ("createdAt", "updatedAt", "RoleId", "PermissionId
 2026-02-04 04:01:05.02+00	2026-02-04 04:01:05.02+00	2	46
 2026-02-04 04:01:05.02+00	2026-02-04 04:01:05.02+00	2	48
 2026-02-04 04:01:05.02+00	2026-02-04 04:01:05.02+00	2	49
+2026-02-04 07:27:35.37+00	2026-02-04 07:27:35.37+00	1	53
+2026-02-04 07:27:35.37+00	2026-02-04 07:27:35.37+00	1	54
+2026-02-04 07:27:35.37+00	2026-02-04 07:27:35.37+00	1	55
+2026-02-04 07:27:35.37+00	2026-02-04 07:27:35.37+00	1	56
+2026-02-04 07:27:35.37+00	2026-02-04 07:27:35.37+00	1	57
+2026-02-04 07:27:35.37+00	2026-02-04 07:27:35.37+00	1	58
+2026-02-04 07:27:35.412+00	2026-02-04 07:27:35.412+00	3	58
 \.
 
 
@@ -986,15 +1100,26 @@ COPY public."Roles" (id, name, description, "createdAt", "updatedAt", "deletedAt
 
 
 --
+-- Data for Name: SystemSettings; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public."SystemSettings" (id, key, value, description, "createdAt", "updatedAt") FROM stdin;
+1	manpro_url	https://manpro.systems/view/login	\N	2026-02-04 08:15:54.051+00	2026-02-04 08:15:54.051+00
+2	manpro_username	udi	\N	2026-02-04 08:15:54.071+00	2026-02-04 08:15:54.071+00
+3	manpro_password	Suryana@130221	\N	2026-02-04 08:15:54.079+00	2026-02-04 08:15:54.079+00
+\.
+
+
+--
 -- Data for Name: Users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY public."Users" (id, username, password, first_name, last_name, role_id, "createdAt", "updatedAt", "deletedAt") FROM stdin;
 1	admin	admin	Super	Admin	1	2026-01-30 02:08:33.828+00	2026-01-30 02:08:33.828+00	\N
-2	itsupport	$2b$10$wVO/lHzoTSmMkkJo7GUq8.1SGYclun9cSy33JPEG/zry2f6CWoU.a	IT	Support	2	2026-01-30 02:28:29.576+00	2026-01-30 08:19:00.334+00	\N
 3	305241202	$2b$10$lF1Terw641ahCKGlbbF08OE0bKLU3wxnemrRdG2M6ZSzcu0VMeST2	Suryana		1	2026-02-03 06:56:35.526+00	2026-02-03 06:56:35.526+00	\N
 4	beta_tester	$2b$10$fzLMyyeIqeyVDecWxH9qqur21SC8ldIYOmVnOTV4AC0QHSW4IVfzG	Beta	Tester	3	2026-02-04 03:53:49.423+00	2026-02-04 04:00:15.127+00	2026-02-04 04:00:49.208+00
 7	testing	$2b$10$4/dxwQESSuPSo0R3lHsPSer63KLlftbjZuzaid8wehOUYrCiKgi9a	Beta	Tester	2	2026-02-04 04:05:01.537+00	2026-02-04 04:05:01.537+00	\N
+2	itsupport	$2b$10$wVO/lHzoTSmMkkJo7GUq8.1SGYclun9cSy33JPEG/zry2f6CWoU.a	IT	Support	3	2026-01-30 02:28:29.576+00	2026-01-30 08:19:00.334+00	\N
 \.
 
 
@@ -1030,6 +1155,9 @@ COPY public.notifications (id, message, resource_type, resource_id, action_type,
 2	Order PO-20260203-001 APPROVED by admin	Order	1	APPROVED	\N	t	2026-02-03 06:56:01.368+00	2026-02-03 06:56:04.155+00	\N
 3	New Order Created: PO-20260203-002	Order	2	CREATED	orders.approve	t	2026-02-03 07:41:33.15+00	2026-02-03 07:41:49.922+00	\N
 4	Order PO-20260203-002 APPROVED by admin	Order	2	APPROVED	\N	t	2026-02-03 07:41:54.27+00	2026-02-03 07:42:07.407+00	\N
+5	Order PO-20260203-002 APPROVED by admin	Order	2	APPROVED	\N	t	2026-02-04 07:44:43.287+00	2026-02-04 08:17:16.26+00	\N
+6	Order PO-20260203-002 PENDING by admin	Order	2	PENDING	\N	t	2026-02-04 07:44:59.423+00	2026-02-04 08:17:16.26+00	\N
+7	Order PO-20260203-002 APPROVED by admin	Order	2	APPROVED	\N	t	2026-02-04 07:45:21.555+00	2026-02-04 08:17:16.26+00	\N
 \.
 
 
@@ -1049,7 +1177,7 @@ COPY public.special_master_items (id, code, name, price, description, "createdAt
 -- Name: ActivityLogs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."ActivityLogs_id_seq"', 45, true);
+SELECT pg_catalog.setval('public."ActivityLogs_id_seq"', 80, true);
 
 
 --
@@ -1098,7 +1226,7 @@ SELECT pg_catalog.setval('public."Partners_id_seq"', 2, true);
 -- Name: Permissions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public."Permissions_id_seq"', 52, true);
+SELECT pg_catalog.setval('public."Permissions_id_seq"', 58, true);
 
 
 --
@@ -1106,6 +1234,13 @@ SELECT pg_catalog.setval('public."Permissions_id_seq"', 52, true);
 --
 
 SELECT pg_catalog.setval('public."Roles_id_seq"', 3, true);
+
+
+--
+-- Name: SystemSettings_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public."SystemSettings_id_seq"', 6, true);
 
 
 --
@@ -1126,7 +1261,7 @@ SELECT pg_catalog.setval('public.item_types_id_seq', 3, true);
 -- Name: notifications_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.notifications_id_seq', 4, true);
+SELECT pg_catalog.setval('public.notifications_id_seq', 7, true);
 
 
 --
@@ -1201,11 +1336,171 @@ ALTER TABLE ONLY public."Orders"
 
 
 --
+-- Name: Orders Orders_order_number_key100; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key100" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key101; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key101" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key102; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key102" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key103; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key103" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key104; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key104" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key105; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key105" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key106; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key106" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key107; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key107" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key108; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key108" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key109; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key109" UNIQUE (order_number);
+
+
+--
 -- Name: Orders Orders_order_number_key11; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Orders"
     ADD CONSTRAINT "Orders_order_number_key11" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key110; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key110" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key111; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key111" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key112; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key112" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key113; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key113" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key114; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key114" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key115; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key115" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key116; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key116" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key117; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key117" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key118; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key118" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key119; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key119" UNIQUE (order_number);
 
 
 --
@@ -1217,11 +1512,171 @@ ALTER TABLE ONLY public."Orders"
 
 
 --
+-- Name: Orders Orders_order_number_key120; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key120" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key121; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key121" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key122; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key122" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key123; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key123" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key124; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key124" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key125; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key125" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key126; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key126" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key127; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key127" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key128; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key128" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key129; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key129" UNIQUE (order_number);
+
+
+--
 -- Name: Orders Orders_order_number_key13; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Orders"
     ADD CONSTRAINT "Orders_order_number_key13" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key130; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key130" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key131; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key131" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key132; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key132" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key133; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key133" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key134; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key134" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key135; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key135" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key136; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key136" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key137; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key137" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key138; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key138" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key139; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key139" UNIQUE (order_number);
 
 
 --
@@ -1233,11 +1688,171 @@ ALTER TABLE ONLY public."Orders"
 
 
 --
+-- Name: Orders Orders_order_number_key140; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key140" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key141; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key141" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key142; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key142" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key143; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key143" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key144; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key144" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key145; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key145" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key146; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key146" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key147; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key147" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key148; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key148" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key149; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key149" UNIQUE (order_number);
+
+
+--
 -- Name: Orders Orders_order_number_key15; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Orders"
     ADD CONSTRAINT "Orders_order_number_key15" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key150; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key150" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key151; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key151" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key152; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key152" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key153; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key153" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key154; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key154" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key155; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key155" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key156; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key156" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key157; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key157" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key158; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key158" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key159; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key159" UNIQUE (order_number);
 
 
 --
@@ -1249,11 +1864,171 @@ ALTER TABLE ONLY public."Orders"
 
 
 --
+-- Name: Orders Orders_order_number_key160; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key160" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key161; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key161" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key162; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key162" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key163; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key163" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key164; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key164" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key165; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key165" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key166; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key166" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key167; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key167" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key168; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key168" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key169; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key169" UNIQUE (order_number);
+
+
+--
 -- Name: Orders Orders_order_number_key17; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Orders"
     ADD CONSTRAINT "Orders_order_number_key17" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key170; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key170" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key171; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key171" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key172; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key172" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key173; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key173" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key174; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key174" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key175; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key175" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key176; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key176" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key177; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key177" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key178; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key178" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key179; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key179" UNIQUE (order_number);
 
 
 --
@@ -1265,11 +2040,171 @@ ALTER TABLE ONLY public."Orders"
 
 
 --
+-- Name: Orders Orders_order_number_key180; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key180" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key181; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key181" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key182; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key182" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key183; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key183" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key184; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key184" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key185; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key185" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key186; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key186" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key187; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key187" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key188; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key188" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key189; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key189" UNIQUE (order_number);
+
+
+--
 -- Name: Orders Orders_order_number_key19; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Orders"
     ADD CONSTRAINT "Orders_order_number_key19" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key190; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key190" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key191; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key191" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key192; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key192" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key193; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key193" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key194; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key194" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key195; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key195" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key196; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key196" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key197; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key197" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key198; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key198" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key199; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key199" UNIQUE (order_number);
 
 
 --
@@ -1289,11 +2224,99 @@ ALTER TABLE ONLY public."Orders"
 
 
 --
+-- Name: Orders Orders_order_number_key200; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key200" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key201; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key201" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key202; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key202" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key203; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key203" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key204; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key204" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key205; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key205" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key206; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key206" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key207; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key207" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key208; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key208" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key209; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key209" UNIQUE (order_number);
+
+
+--
 -- Name: Orders Orders_order_number_key21; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Orders"
     ADD CONSTRAINT "Orders_order_number_key21" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key210; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key210" UNIQUE (order_number);
 
 
 --
@@ -1553,11 +2576,163 @@ ALTER TABLE ONLY public."Orders"
 
 
 --
+-- Name: Orders Orders_order_number_key51; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key51" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key52; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key52" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key53; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key53" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key54; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key54" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key55; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key55" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key56; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key56" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key57; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key57" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key58; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key58" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key59; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key59" UNIQUE (order_number);
+
+
+--
 -- Name: Orders Orders_order_number_key6; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Orders"
     ADD CONSTRAINT "Orders_order_number_key6" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key60; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key60" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key61; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key61" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key62; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key62" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key63; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key63" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key64; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key64" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key65; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key65" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key66; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key66" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key67; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key67" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key68; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key68" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key69; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key69" UNIQUE (order_number);
 
 
 --
@@ -1569,6 +2744,86 @@ ALTER TABLE ONLY public."Orders"
 
 
 --
+-- Name: Orders Orders_order_number_key70; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key70" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key71; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key71" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key72; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key72" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key73; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key73" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key74; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key74" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key75; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key75" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key76; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key76" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key77; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key77" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key78; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key78" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key79; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key79" UNIQUE (order_number);
+
+
+--
 -- Name: Orders Orders_order_number_key8; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1577,11 +2832,171 @@ ALTER TABLE ONLY public."Orders"
 
 
 --
+-- Name: Orders Orders_order_number_key80; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key80" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key81; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key81" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key82; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key82" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key83; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key83" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key84; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key84" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key85; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key85" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key86; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key86" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key87; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key87" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key88; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key88" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key89; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key89" UNIQUE (order_number);
+
+
+--
 -- Name: Orders Orders_order_number_key9; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Orders"
     ADD CONSTRAINT "Orders_order_number_key9" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key90; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key90" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key91; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key91" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key92; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key92" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key93; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key93" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key94; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key94" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key95; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key95" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key96; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key96" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key97; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key97" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key98; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key98" UNIQUE (order_number);
+
+
+--
+-- Name: Orders Orders_order_number_key99; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Orders"
+    ADD CONSTRAINT "Orders_order_number_key99" UNIQUE (order_number);
 
 
 --
@@ -2201,11 +3616,83 @@ ALTER TABLE ONLY public."Permissions"
 
 
 --
+-- Name: Permissions Permissions_name_key77; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Permissions"
+    ADD CONSTRAINT "Permissions_name_key77" UNIQUE (name);
+
+
+--
+-- Name: Permissions Permissions_name_key78; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Permissions"
+    ADD CONSTRAINT "Permissions_name_key78" UNIQUE (name);
+
+
+--
+-- Name: Permissions Permissions_name_key79; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Permissions"
+    ADD CONSTRAINT "Permissions_name_key79" UNIQUE (name);
+
+
+--
 -- Name: Permissions Permissions_name_key8; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Permissions"
     ADD CONSTRAINT "Permissions_name_key8" UNIQUE (name);
+
+
+--
+-- Name: Permissions Permissions_name_key80; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Permissions"
+    ADD CONSTRAINT "Permissions_name_key80" UNIQUE (name);
+
+
+--
+-- Name: Permissions Permissions_name_key81; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Permissions"
+    ADD CONSTRAINT "Permissions_name_key81" UNIQUE (name);
+
+
+--
+-- Name: Permissions Permissions_name_key82; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Permissions"
+    ADD CONSTRAINT "Permissions_name_key82" UNIQUE (name);
+
+
+--
+-- Name: Permissions Permissions_name_key83; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Permissions"
+    ADD CONSTRAINT "Permissions_name_key83" UNIQUE (name);
+
+
+--
+-- Name: Permissions Permissions_name_key84; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Permissions"
+    ADD CONSTRAINT "Permissions_name_key84" UNIQUE (name);
+
+
+--
+-- Name: Permissions Permissions_name_key85; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Permissions"
+    ADD CONSTRAINT "Permissions_name_key85" UNIQUE (name);
 
 
 --
@@ -2833,11 +4320,83 @@ ALTER TABLE ONLY public."Roles"
 
 
 --
+-- Name: Roles Roles_name_key77; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Roles"
+    ADD CONSTRAINT "Roles_name_key77" UNIQUE (name);
+
+
+--
+-- Name: Roles Roles_name_key78; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Roles"
+    ADD CONSTRAINT "Roles_name_key78" UNIQUE (name);
+
+
+--
+-- Name: Roles Roles_name_key79; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Roles"
+    ADD CONSTRAINT "Roles_name_key79" UNIQUE (name);
+
+
+--
 -- Name: Roles Roles_name_key8; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Roles"
     ADD CONSTRAINT "Roles_name_key8" UNIQUE (name);
+
+
+--
+-- Name: Roles Roles_name_key80; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Roles"
+    ADD CONSTRAINT "Roles_name_key80" UNIQUE (name);
+
+
+--
+-- Name: Roles Roles_name_key81; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Roles"
+    ADD CONSTRAINT "Roles_name_key81" UNIQUE (name);
+
+
+--
+-- Name: Roles Roles_name_key82; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Roles"
+    ADD CONSTRAINT "Roles_name_key82" UNIQUE (name);
+
+
+--
+-- Name: Roles Roles_name_key83; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Roles"
+    ADD CONSTRAINT "Roles_name_key83" UNIQUE (name);
+
+
+--
+-- Name: Roles Roles_name_key84; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Roles"
+    ADD CONSTRAINT "Roles_name_key84" UNIQUE (name);
+
+
+--
+-- Name: Roles Roles_name_key85; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Roles"
+    ADD CONSTRAINT "Roles_name_key85" UNIQUE (name);
 
 
 --
@@ -2854,6 +4413,86 @@ ALTER TABLE ONLY public."Roles"
 
 ALTER TABLE ONLY public."Roles"
     ADD CONSTRAINT "Roles_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: SystemSettings SystemSettings_key_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."SystemSettings"
+    ADD CONSTRAINT "SystemSettings_key_key" UNIQUE (key);
+
+
+--
+-- Name: SystemSettings SystemSettings_key_key1; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."SystemSettings"
+    ADD CONSTRAINT "SystemSettings_key_key1" UNIQUE (key);
+
+
+--
+-- Name: SystemSettings SystemSettings_key_key2; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."SystemSettings"
+    ADD CONSTRAINT "SystemSettings_key_key2" UNIQUE (key);
+
+
+--
+-- Name: SystemSettings SystemSettings_key_key3; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."SystemSettings"
+    ADD CONSTRAINT "SystemSettings_key_key3" UNIQUE (key);
+
+
+--
+-- Name: SystemSettings SystemSettings_key_key4; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."SystemSettings"
+    ADD CONSTRAINT "SystemSettings_key_key4" UNIQUE (key);
+
+
+--
+-- Name: SystemSettings SystemSettings_key_key5; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."SystemSettings"
+    ADD CONSTRAINT "SystemSettings_key_key5" UNIQUE (key);
+
+
+--
+-- Name: SystemSettings SystemSettings_key_key6; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."SystemSettings"
+    ADD CONSTRAINT "SystemSettings_key_key6" UNIQUE (key);
+
+
+--
+-- Name: SystemSettings SystemSettings_key_key7; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."SystemSettings"
+    ADD CONSTRAINT "SystemSettings_key_key7" UNIQUE (key);
+
+
+--
+-- Name: SystemSettings SystemSettings_key_key8; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."SystemSettings"
+    ADD CONSTRAINT "SystemSettings_key_key8" UNIQUE (key);
+
+
+--
+-- Name: SystemSettings SystemSettings_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."SystemSettings"
+    ADD CONSTRAINT "SystemSettings_pkey" PRIMARY KEY (id);
 
 
 --
@@ -3465,11 +5104,83 @@ ALTER TABLE ONLY public."Users"
 
 
 --
+-- Name: Users Users_username_key77; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Users"
+    ADD CONSTRAINT "Users_username_key77" UNIQUE (username);
+
+
+--
+-- Name: Users Users_username_key78; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Users"
+    ADD CONSTRAINT "Users_username_key78" UNIQUE (username);
+
+
+--
+-- Name: Users Users_username_key79; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Users"
+    ADD CONSTRAINT "Users_username_key79" UNIQUE (username);
+
+
+--
 -- Name: Users Users_username_key8; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public."Users"
     ADD CONSTRAINT "Users_username_key8" UNIQUE (username);
+
+
+--
+-- Name: Users Users_username_key80; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Users"
+    ADD CONSTRAINT "Users_username_key80" UNIQUE (username);
+
+
+--
+-- Name: Users Users_username_key81; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Users"
+    ADD CONSTRAINT "Users_username_key81" UNIQUE (username);
+
+
+--
+-- Name: Users Users_username_key82; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Users"
+    ADD CONSTRAINT "Users_username_key82" UNIQUE (username);
+
+
+--
+-- Name: Users Users_username_key83; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Users"
+    ADD CONSTRAINT "Users_username_key83" UNIQUE (username);
+
+
+--
+-- Name: Users Users_username_key84; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Users"
+    ADD CONSTRAINT "Users_username_key84" UNIQUE (username);
+
+
+--
+-- Name: Users Users_username_key85; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Users"
+    ADD CONSTRAINT "Users_username_key85" UNIQUE (username);
 
 
 --
@@ -3572,5 +5283,5 @@ ALTER TABLE ONLY public.master_items
 -- PostgreSQL database dump complete
 --
 
-\unrestrict L711wd80LrvC1fQ9fLCDyk2vAyxvo1r4TgBiicNvGs9tI4HtPkj0DM3dbXOS6fY
+\unrestrict gR14YueiBk4HERF9vCLwZv13sPoMRoSdB9fxDVo0aqa1oz8KTWQlz8uIGSnI49S
 
