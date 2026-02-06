@@ -1,0 +1,459 @@
+nohup: ignoring input
+🏥 Starting Nurse Call Service...
+🐍 Running in local Python mode...
+✅ Virtual environment activated
+🚀 Starting server on http://localhost:8001
+📖 Swagger UI: http://localhost:8001/docs
+
+INFO:     Will watch for changes in these directories: ['/home/suryana/Projects/nurse-service']
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     Started reloader process [52177] using StatReload
+INFO:     Started server process [52189]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     172.18.0.7:59104 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59088 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59124 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59120 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59132 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59140 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59170 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59156 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59176 - "GET /rooms/all?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59178 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59194 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59198 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59182 - "GET /rooms/all?active_only=true HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59214 - "GET /rooms/all?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59218 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59226 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59232 - "GET /rooms/all?active_only=true HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59240 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59252 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59256 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59270 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59280 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51620 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51612 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51636 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51642 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51648 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51654 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51664 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51674 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:33710 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:33694 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:33712 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:33716 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:45438 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:45434 - "GET /rooms/all?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.7:45472 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:45458 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:45454 - "GET /rooms/all?active_only=true HTTP/1.1" 200 OK
+INFO:     172.18.0.7:45484 - "GET /rooms/all?active_only=true HTTP/1.1" 200 OK
+INFO:     172.18.0.7:45502 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:45524 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:45518 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:45498 - "GET /rooms/all?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59488 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59486 - "GET /rooms/all?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59498 - "GET /rooms/all?active_only=true HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59512 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59524 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59540 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59554 - "GET /rooms/all?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59560 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59566 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59556 - "GET /rooms/all?active_only=true HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52366 - "GET /rooms/all?active_only=true HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52374 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52376 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51816 - "GET /rooms/all?active_only=true HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51834 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51820 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51840 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51854 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:35006 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:34994 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:43756 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:43772 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:43810 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:43786 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:43802 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:43830 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:43822 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:43820 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:60730 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52216 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52232 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52248 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52236 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52252 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52256 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:47218 - "GET /rooms/all?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.7:47222 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:47230 - "GET /rooms/all?active_only=true HTTP/1.1" 200 OK
+INFO:     172.18.0.7:47242 - "GET /rooms/all?active_only=true HTTP/1.1" 200 OK
+INFO:     172.18.0.7:47252 - "GET /rooms/all?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.7:47244 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:38302 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:38308 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:38316 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:38322 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:56404 - "POST /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:56408 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:47132 - "PUT /nurse-stations/1 HTTP/1.1" 200 OK
+INFO:     172.18.0.7:47134 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49816 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49822 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49838 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49848 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49850 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49864 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49874 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49880 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49892 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49906 - "GET /rooms/all?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49924 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49914 - "GET /rooms/all?active_only=true HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49928 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49942 - "GET /rooms/all?active_only=true HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49960 - "GET /rooms/all?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49950 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49972 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49988 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:42026 - "POST /rooms HTTP/1.1" 200 OK
+INFO:     172.18.0.7:42042 - "GET /rooms/all?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.7:39042 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:39030 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:39058 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:39066 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:35704 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:35714 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:48020 - "GET /discharge-requests?status=pending HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.OperationalError: server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/uvicorn/protocols/http/h11_impl.py", line 404, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 84, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/starlette/applications.py", line 123, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/starlette/routing.py", line 762, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/starlette/routing.py", line 782, in app
+    await route.handle(scope, receive, send)
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/starlette/routing.py", line 297, in handle
+    await self.app(scope, receive, send)
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/starlette/routing.py", line 77, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 64, in wrapped_app
+    raise exc
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/starlette/routing.py", line 72, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 299, in app
+    raise e
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 294, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/suryana/Projects/nurse-service/main.py", line 504, in get_discharge_requests
+    return query.order_by(DischargeRequest.created_at.desc()).all()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2693, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2847, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2308, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2190, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1416, in execute
+    return meth(
+           ^^^^^
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 517, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1639, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1848, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1988, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2344, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1969, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/suryana/Projects/nurse-service/.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 922, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request.
+
+[SQL: SELECT discharge_requests.id AS discharge_requests_id, discharge_requests.patient_id AS discharge_requests_patient_id, discharge_requests.requested_by AS discharge_requests_requested_by, discharge_requests.reason AS discharge_requests_reason, discharge_requests.status AS discharge_requests_status, discharge_requests.approved_by AS discharge_requests_approved_by, discharge_requests.created_at AS discharge_requests_created_at, discharge_requests.approved_at AS discharge_requests_approved_at 
+FROM discharge_requests 
+WHERE discharge_requests.status = %(status_1)s ORDER BY discharge_requests.created_at DESC]
+[parameters: {'status_1': 'pending'}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+INFO:     172.18.0.7:48030 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:53360 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:53368 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:53382 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:53398 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49314 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49300 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49318 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49332 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49342 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49352 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:35104 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:35102 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:54598 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:54624 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:54608 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:54638 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:54658 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:54648 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51146 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51158 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:57218 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:57206 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59902 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59890 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:47080 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:47090 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:39274 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:39268 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:56162 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:56152 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:60640 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:60654 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:35482 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:35490 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:39942 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:39952 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:41156 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:41160 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:54088 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:54082 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:53898 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:53912 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:57732 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:57748 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:60516 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:60520 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:57124 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:57110 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51208 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51218 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:42434 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:42440 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:39262 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:39270 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:57500 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:57510 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49812 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49828 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:55652 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:55656 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:48294 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:48308 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:56702 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:56692 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52248 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52258 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:34242 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:34258 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:50250 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:50262 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:53168 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:53176 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:54904 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:54910 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:44268 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:44282 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:48454 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:48456 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59704 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59708 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:55980 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:55972 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51584 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51590 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:45672 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:45656 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49038 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:49050 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:44658 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:44668 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:60886 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:60894 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:46296 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:46282 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:47282 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:47288 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:41654 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:41642 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51898 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51908 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52106 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52116 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:56096 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:56104 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:48122 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:48136 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:50120 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:50116 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:39224 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:39234 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:33582 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:33588 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:57902 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:57880 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:57896 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:57926 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:57934 - "GET /nurse-stations HTTP/1.1" 200 OK
+INFO:     172.18.0.7:57914 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:58824 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:58820 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:50946 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:50942 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59824 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59832 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:33582 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:33586 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:44158 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:44146 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:44950 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:44934 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:46820 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:46832 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59242 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59226 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59032 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59036 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:60364 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:60366 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:39800 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:39814 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:56742 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:56732 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:36618 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:36610 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:42004 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:41996 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:48270 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:48260 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:54692 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:54686 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:44342 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:44332 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:44586 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:44580 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:48092 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:48082 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51142 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:51156 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:48566 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:48560 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:60712 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:60702 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:38800 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:38786 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:39354 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:39346 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:56146 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:56160 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52128 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52122 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:35342 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:35346 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:54284 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:54290 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:54666 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:54678 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:40708 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:40722 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:43966 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:43970 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:43456 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:43464 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:34334 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:34344 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52074 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52086 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:42178 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:42172 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:47604 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:47614 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:37240 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:37244 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52232 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:52222 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:50550 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:50558 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:47226 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:47216 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59602 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:59596 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:41504 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:41520 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:37868 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:37860 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:50466 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:50478 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:36244 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:36260 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:41034 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:41046 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:58252 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:58268 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:58412 - "GET /room-transfer-requests?status=pending HTTP/1.1" 200 OK
+INFO:     172.18.0.7:58410 - "GET /discharge-requests?status=pending HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [52189]
+INFO:     Stopping reloader process [52177]

@@ -1,0 +1,54 @@
+nohup: ignoring input
+INFO:     Started server process [183483]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8006 (Press CTRL+C to quit)
+INFO:     172.18.0.4:40002 - "GET /users HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58690 - "GET /users HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58698 - "GET /users HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58712 - "GET /users HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58726 - "GET /users HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58704 - "GET /roles?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58740 - "GET /roles?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58746 - "GET /roles?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58748 - "GET /roles?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58754 - "GET /permissions HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58784 - "GET /permissions HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58768 - "GET /roles?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58762 - "GET /roles?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58792 - "GET /users HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58816 - "GET /users HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58796 - "GET /users HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58834 - "GET /roles?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58820 - "GET /users HTTP/1.1" 200 OK
+INFO:     172.18.0.4:58810 - "GET /roles?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.4:56176 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:56178 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:56182 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:56198 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55050 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55066 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55072 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:55080 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36508 - "GET /users HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36516 - "GET /roles?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36534 - "GET /roles?active_only=false HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36532 - "GET /users HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36550 - "GET /users HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36558 - "GET /users HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36562 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36570 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36574 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:36590 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45526 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45534 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45540 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:45546 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:38526 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:38534 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:38536 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     172.18.0.4:38542 - "GET /dashboard/stats HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [183483]

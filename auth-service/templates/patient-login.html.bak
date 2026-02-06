@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Login - Hospital</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 450px;
+            width: 100%;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .logo p {
+            color: #6b7280;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .error-msg {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .info-box {
+            background: #f0f9ff;
+            border: 1px solid #bfdbfe;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-box h3 {
+            color: #1e40af;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #1e40af;
+            font-size: 0.85rem;
+        }
+
+        .switch-link {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .switch-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .switch-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>🏥 Patient Login</h1>
+            <p>Welcome to Hospital Room Service</p>
+        </div>
+
+        <div class="info-box">
+            <h3>📋 Demo Medical Record Numbers:</h3>
+            <ul>
+                <li>MR001 - Ahmad Fauzi (Room 301)</li>
+                <li>MR002 - Siti Rahmawati (Room 302)</li>
+                <li>MR003 - Budi Santoso (Room 303)</li>
+                <li>MR010 - Jasmine Putri (Room 504)</li>
+            </ul>
+        </div>
+
+        <div id="errorMsg" class="error-msg"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="medicalRecord">Medical Record Number</label>
+                <input type="text" id="medicalRecord" name="medicalRecord"
+                    placeholder="Enter your medical record (e.g., MR001)" required autocomplete="off">
+            </div>
+
+            <button type="submit" class="login-btn">Login as Patient</button>
+        </form>
+
+        <div class="switch-link">
+            <a href="http://localhost:8005/staff-login">Staff Login →</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const medicalRecord = document.getElementById('medicalRecord').value.trim().toUpperCase();
+            const errorMsg = document.getElementById('errorMsg');
+
+            // Clear previous errors
+            errorMsg.textContent = '';
+            errorMsg.style.display = 'none';
+
+            try {
+                const response = await fetch('http://localhost:8005/login/patient', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        medical_record_number: medicalRecord
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Store JWT token and patient info
+                    localStorage.setItem('token', data.access_token);
+                    localStorage.setItem('userRole', 'patient');
+                    localStorage.setItem('patientData', JSON.stringify(data.user_info));
+                    localStorage.setItem('roomNumber', data.user_info.room_number);
+                    localStorage.setItem('user_info', JSON.stringify(data.user_info)); // Format consistency
+
+                    // Redirect to customer portal
+                    window.location.href = 'http://localhost:8004/customer';
+                } else {
+                    errorMsg.textContent = data.detail || 'Invalid medical record number or patient not admitted';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                errorMsg.textContent = 'Unable to connect to authentication service';
+                errorMsg.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+
+  # Auth Service
+  auth_service:
+    build: .
+    container_name: auth_service
+    environment:
+      DATABASE_URL: postgresql://hospital_admin:secure_hospital_pass@hospital_postgres:5432/auth_db
+      SECRET_KEY: ${SECRET_KEY:-dev_secret_key_only_for_testing}
+    ports:
+      - "8005:8005"
+
+    networks:
+      - hospital_network
+
+networks:
+  hospital_network:
+    external: true

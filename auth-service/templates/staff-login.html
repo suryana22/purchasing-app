@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Portal - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #312e81;
+            /* Deep Blue Background matching the screenshot approximately */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #1f2937;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            color: #1f2937;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4338ca;
+            ring: 2px solid #e0e7ff;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #312e81;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            background-color: #3730a3;
+        }
+
+        .error-msg {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .footer-link {
+            margin-top: 25px;
+            display: block;
+            color: #4b5563;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .footer-link:hover {
+            color: #1f2937;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="header">
+            <h1>Staff Portal</h1>
+            <p>Secure login for hospital personnel</p>
+        </div>
+
+        <div id="errorMsg" class="error-msg"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter username" required autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter password" required>
+            </div>
+
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+
+        <a href="/" class="footer-link">Back to Patient Login</a>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="customAlert"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+        <div
+            style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+            <div id="alertIcon" style="font-size: 50px; margin-bottom: 20px;">⚠️</div>
+            <h3 id="alertTitle" style="color: #1f2937; margin-bottom: 10px; font-size: 1.5rem;">Alert</h3>
+            <p id="alertMessage" style="color: #6b7280; margin-bottom: 25px; line-height: 1.5;">Message</p>
+            <button onclick="document.getElementById('customAlert').style.display = 'none'"
+                style="background-color: #312e81; color: white; border: none; padding: 10px 30px; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                OK
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function showCustomAlert(title, message, icon = '⚠️') {
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertMessage').innerText = message;
+            document.getElementById('alertIcon').innerText = icon;
+            document.getElementById('customAlert').style.display = 'flex';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+
+            // Reset error
+            errorMsg.style.display = 'none';
+
+            try {
+                const response = await fetch('/login/staff', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Double check if user is active (backend should catch this but just in case)
+                    if (data.user_info.is_active === false) {
+                        showCustomAlert(
+                            "Akun Tidak Aktif",
+                            "Akun Anda sudah tidak aktif. Harap hubungi administrator untuk aktivasi kembali.",
+                            "🚫"
+                        );
+                        return;
+                    }
+
+                    // Prepare auth data for transfer
+                    const authPayload = {
+                        token: data.access_token,
+                        userRole: data.user_info.role,
+                        staffData: JSON.stringify(data.user_info)
+                    };
+
+                    // Base64 encode
+                    const authDataStr = btoa(JSON.stringify(authPayload));
+
+                    // Redirect with hash
+                    const redirects = {
+                        'nurse': 'http://localhost:8001/monitor',
+                        'kitchen': 'http://localhost:8002/dashboard',
+                        'cleaning': 'http://localhost:8003/dashboard',
+                        'administrator': 'http://localhost:8000/admin-users'
+                    };
+
+                    const baseUrl = redirects[data.user_info.role] || '/';
+                    window.location.href = `${baseUrl}#auth_data=${encodeURIComponent(authDataStr)}`;
+                } else {
+                    // Specific handling for inactive user (403 or logic)
+                    if (response.status === 403 || (data.detail && data.detail.includes('inactive'))) {
+                        showCustomAlert(
+                            "Akun Tidak Aktif",
+                            "Akun Anda sudah tidak aktif. Harap hubungi administrator untuk aktivasi kembali.",
+                            "🚫"
+                        );
+                        return;
+                    }
+
+                    errorMsg.textContent = data.detail || 'Invalid username or password';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorMsg.textContent = 'Unable to connect to authentication service';
+                errorMsg.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+
+</html>

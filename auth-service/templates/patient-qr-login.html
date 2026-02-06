@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Login - QR Code Scanner</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background: #f0f4ff;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        #qr-reader {
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .manual-input {
+            margin-top: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .camera-permission {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .camera-permission svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .instructions {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Login Pasien</h1>
+            <p>Scan QR Code dari Kartu Pasien Anda</p>
+        </div>
+
+        <div class="content">
+            <!-- Alert Messages -->
+            <div id="alertBox" class="hidden"></div>
+
+            <!-- Tab Buttons -->
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('scan')">
+                    📷 Scan QR Code
+                </button>
+                <button class="tab-btn" onclick="switchTab('manual')">
+                    ⌨️ Input Manual
+                </button>
+            </div>
+
+            <!-- Scan Tab -->
+            <div id="scanTab" class="tab-content active">
+                <div class="instructions">
+                    <strong>Cara Scan QR Code:</strong>
+                    <ol>
+                        <li>Klik tombol "Mulai Scan"</li>
+                        <li>Izinkan akses kamera saat diminta</li>
+                        <li>Arahkan kamera ke QR Code pada kartu pasien</li>
+                        <li>Login otomatis setelah QR terdeteksi</li>
+                    </ol>
+                </div>
+
+                <div id="qr-reader" class="hidden"></div>
+
+                <div id="cameraPermission" class="camera-permission">
+                    <svg fill="#667eea" viewBox="0 0 24 24">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                    </svg>
+                    <p style="color: #666; margin-bottom: 20px;">Klik tombol di bawah untuk memulai scan</p>
+                </div>
+
+                <button id="startScanBtn" class="btn" onclick="startScanning()">
+                    📷 Mulai Scan QR Code
+                </button>
+                <button id="stopScanBtn" class="btn hidden" onclick="stopScanning()">
+                    ⏹️ Stop Scan
+                </button>
+            </div>
+
+            <!-- Manual Tab -->
+            <div id="manualTab" class="tab-content">
+                <div class="instructions">
+                    <strong>Untuk input manual:</strong>
+                    <p style="margin-top: 8px;">
+                        Masukkan kode QR yang tertera di kartu pasien Anda jika tidak bisa melakukan scan.
+                    </p>
+                </div>
+
+                <form id="manualForm" onsubmit="handleManualLogin(event)">
+                    <div class="input-group">
+                        <label for="qrToken">Kode QR Token</label>
+                        <input type="text" id="qrToken" name="qrToken"
+                            placeholder="Contoh: fdebe73e-f5cb-4e8a-9671-c21fc052e462" required autocomplete="off">
+                    </div>
+                    <button type="submit" class="btn">
+                        🔑 Login dengan Token
+                    </button>
+                </form>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingBox" class="loading hidden">
+                <div class="spinner"></div>
+                <p style="margin-top: 15px; color: #666;">Memproses login...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let html5QrCode = null;
+        let isScanning = false;
+
+        function switchTab(tab) {
+            // Stop scanning if switching away from scan tab
+            if (tab !== 'scan' && isScanning) {
+                stopScanning();
+            }
+
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            if (tab === 'scan') {
+                document.getElementById('scanTab').classList.add('active');
+            } else {
+                document.getElementById('manualTab').classList.add('active');
+            }
+        }
+
+        function showAlert(message, type = 'info') {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.className = `alert alert-${type}`;
+            alertBox.textContent = message;
+            alertBox.classList.remove('hidden');
+
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                alertBox.classList.add('hidden');
+            }, 5000);
+        }
+
+        function showLoading(show = true) {
+            document.getElementById('loadingBox').classList.toggle('hidden', !show);
+        }
+
+        async function startScanning() {
+            try {
+                const qrReaderDiv = document.getElementById('qr-reader');
+                const startBtn = document.getElementById('startScanBtn');
+                const stopBtn = document.getElementById('stopScanBtn');
+                const permission = document.getElementById('cameraPermission');
+
+                // Show QR reader
+                qrReaderDiv.classList.remove('hidden');
+                permission.classList.add('hidden');
+                startBtn.classList.add('hidden');
+                stopBtn.classList.remove('hidden');
+
+                // Initialize scanner
+                html5QrCode = new Html5Qrcode("qr-reader");
+
+                const config = {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 }
+                };
+
+                await html5QrCode.start(
+                    { facingMode: "environment" },
+                    config,
+                    onScanSuccess,
+                    onScanFailure
+                );
+
+                isScanning = true;
+                showAlert('Kamera aktif. Arahkan ke QR Code...', 'info');
+            } catch (err) {
+                console.error('Error starting scanner:', err);
+                showAlert('Gagal mengakses kamera. Pastikan Anda memberikan izin akses kamera.', 'error');
+                stopScanning();
+            }
+        }
+
+        async function stopScanning() {
+            if (html5QrCode && isScanning) {
+                try {
+                    await html5QrCode.stop();
+                    html5QrCode.clear();
+                } catch (err) {
+                    console.error('Error stopping scanner:', err);
+                }
+            }
+
+            const qrReaderDiv = document.getElementById('qr-reader');
+            const startBtn = document.getElementById('startScanBtn');
+            const stopBtn = document.getElementById('stopScanBtn');
+            const permission = document.getElementById('cameraPermission');
+
+            qrReaderDiv.classList.add('hidden');
+            permission.classList.remove('hidden');
+            startBtn.classList.remove('hidden');
+            stopBtn.classList.add('hidden');
+            isScanning = false;
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            console.log('QR Code detected:', decodedText);
+
+            // Check if it's a full URL or just a token
+            let token = decodedText;
+
+            // Extract token from URL if needed
+            if (decodedText.includes('magic-login?token=')) {
+                const urlParams = new URLSearchParams(decodedText.split('?')[1]);
+                token = urlParams.get('token');
+            } else if (decodedText.includes('/magic-login/')) {
+                token = decodedText.split('/magic-login/')[1];
+            }
+
+            // Stop scanning
+            stopScanning();
+
+            // Show success and redirect
+            showAlert('QR Code terdeteksi! Sedang login...', 'success');
+            showLoading(true);
+
+            // Redirect to magic login
+            setTimeout(() => {
+                window.location.href = `/magic-login?token=${token}`;
+            }, 1000);
+        }
+
+        function onScanFailure(error) {
+            // Ignore scan failures (too verbose)
+            // console.warn('QR scan error:', error);
+        }
+
+        function handleManualLogin(event) {
+            event.preventDefault();
+
+            const token = document.getElementById('qrToken').value.trim();
+
+            if (!token) {
+                showAlert('Silakan masukkan kode QR token', 'error');
+                return;
+            }
+
+            showAlert('Memproses login...', 'info');
+            showLoading(true);
+
+            // Redirect to magic login
+            setTimeout(() => {
+                window.location.href = `/magic-login?token=${token}`;
+            }, 500);
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (isScanning) {
+                stopScanning();
+            }
+        });
+    </script>
+</body>
+
+</html>

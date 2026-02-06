@@ -5,8 +5,15 @@
 !/purchasing-app/
 !/purchasing-service/
 !/master-data-service/
+!/auth-service/
+!/nurse-service/
+!/tracking-service/
+!/user-management/
+!/purchasing-application/
 !/install_server.sh
 !/README_DEPLOY.md
+!/run_all_services.sh
+!/reset_db_v2.py
 !.gitignore
 
 # Standard Ignores inside the allowed folders
