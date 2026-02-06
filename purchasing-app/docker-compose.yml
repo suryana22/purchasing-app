@@ -80,6 +80,14 @@ services:
     networks:
       - purchasing_network
 
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel
+    restart: always
+    command: tunnel --no-autoupdate run --token eyJhIjoiY2Q0MzI2YmQ4NTg4YjllYzNlMmVmY2RkNzFkZGY0NGMiLCJ0IjoiNDc3YThiMzQtYWExZi00OTIwLWE0ZTEtMDc2YTBlNzMzMmUxIiwicyI6IlpHSTRNMlJrTkdFdFpqWXhPQzAwWWpRMUxXSXdORGN0T0dGbE5XVTRNekpqWmpFNSJ9
+    networks:
+      - purchasing_network
+
 networks:
   purchasing_network:
     driver: bridge
