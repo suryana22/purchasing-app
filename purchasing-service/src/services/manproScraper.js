@@ -5,6 +5,156 @@ const path = require('path');
 const COOKIE_FILE = path.join(process.cwd(), 'manpro_cookies.json');
 
 class ScraperService {
+    constructor() {
+        this.adminSession = null; // Holds { browser, page }
+        this.keepAliveInterval = null;
+        this.lastLatency = 0;
+        this.isInitializing = false;
+    }
+
+    async initAdminSession(username, password) {
+        if (this.adminSession) {
+            console.log('[Scraper] Admin session already active.');
+            return true;
+        }
+
+        if (this.isInitializing) {
+            console.log('[Scraper] Admin session initialization in progress...');
+            return false;
+        }
+
+        this.isInitializing = true;
+        console.log('[Scraper] Initializing Admin Session...');
+
+        try {
+            const browser = await puppeteer.launch({
+                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu'
+                ]
+            });
+
+            const page = await browser.newPage();
+            await page.setViewport({ width: 1280, height: 800 });
+
+            // Load cookies if available
+            await this.loadSession(page);
+
+            // Navigate to Dashboard to check login
+            const dashboardUrl = 'https://manpro.systems/view/dashboard-cs';
+
+            const startStr = Date.now();
+            await page.goto(dashboardUrl, { waitUntil: 'networkidle2', timeout: 60000 });
+            const lat = Date.now() - startStr;
+            this.lastLatency = lat;
+
+            // Check login
+            const isLoginPage = await page.evaluate(() => !!document.querySelector('input[type="password"]'));
+
+            if (isLoginPage) {
+                console.log('[Scraper] Session expired. Logging in for Admin Session...');
+                if (!username || !password) {
+                    throw new Error('Credentials required for Admin Session init');
+                }
+
+                // Login Logic (Reuse logic?) - implementing inline for simplicity and robustness
+                await page.waitForSelector('input[type="password"]', { timeout: 10000 });
+
+                const userField = await page.$('input[type="text"], input[name="username"], #username');
+                if (userField) {
+                    await userField.click({ clickCount: 3 });
+                    await userField.type(username);
+                }
+
+                await page.type('input[type="password"]', password);
+
+                await Promise.all([
+                    page.waitForNavigation({ waitUntil: 'networkidle2' }),
+                    page.click('button[type="submit"], input[type="submit"]')
+                ]);
+
+                // Save cookies
+                await this.saveSession(page);
+            }
+
+            console.log('[Scraper] Admin Session Established.');
+            this.adminSession = { browser, page };
+            this.startKeepAlive();
+            return true;
+
+        } catch (err) {
+            console.error('[Scraper] Failed to init Admin Session:', err);
+            return false;
+        } finally {
+            this.isInitializing = false;
+        }
+    }
+
+    startKeepAlive() {
+        if (this.keepAliveInterval) clearInterval(this.keepAliveInterval);
+
+        console.log('[Scraper] Starting Keep-Alive Loop (5 mins)...');
+        // Run immediately once to verify
+        // this.keepAliveAction();
+
+        this.keepAliveInterval = setInterval(() => {
+            this.keepAliveAction();
+        }, 5 * 60 * 1000); // 5 minutes
+    }
+
+    async keepAliveAction() {
+        if (!this.adminSession || !this.adminSession.page) {
+            this.stopAdminSession();
+            return;
+        }
+
+        try {
+            const page = this.adminSession.page;
+            const currentUrl = page.url();
+            const targetUrl = currentUrl.includes('dashboard-cs')
+                ? 'https://manpro.systems/view/index'
+                : 'https://manpro.systems/view/dashboard-cs';
+
+            console.log(`[Scraper] Keep-Alive: Switching to ${targetUrl}`);
+            const start = Date.now();
+            await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+            const latency = Date.now() - start;
+            this.lastLatency = latency;
+            console.log(`[Scraper] Keep-Alive Success. Latency: ${latency}ms`);
+
+        } catch (err) {
+            console.error('[Scraper] Keep-Alive Failed:', err.message);
+            // If it fails repeatedly, maybe restart?
+            // For now just log.
+        }
+    }
+
+    async stopAdminSession() {
+        if (this.keepAliveInterval) {
+            clearInterval(this.keepAliveInterval);
+            this.keepAliveInterval = null;
+        }
+
+        if (this.adminSession) {
+            try {
+                await this.adminSession.browser.close();
+            } catch (e) {
+                console.error('[Scraper] Error closing admin session browser:', e);
+            }
+            this.adminSession = null;
+            this.lastLatency = 0;
+            console.log('[Scraper] Admin Session Stopped.');
+        }
+    }
+
+    getLatency() {
+        return this.lastLatency;
+    }
+
     async loadSession(page) {
         if (fs.existsSync(COOKIE_FILE)) {
             try {
@@ -33,28 +183,43 @@ class ScraperService {
     async scrapeManproPosition(url, username, password) {
         if (!url) throw new Error('URL is required');
 
-        console.log(`[Scraper] Starting browser for: ${url}`);
-        const browser = await puppeteer.launch({
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
-            headless: true,
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-gpu'
-            ]
-        });
+        let browser;
+        let page;
+        let shouldClose = true;
+
+        if (this.adminSession && this.adminSession.page && !this.adminSession.page.isClosed()) {
+            console.log('[Scraper] Reusing Active Admin Session...');
+            browser = this.adminSession.browser;
+            page = this.adminSession.page;
+            shouldClose = false; // Don't close the shared session
+        } else {
+            console.log(`[Scraper] Starting new browser for: ${url}`);
+            browser = await puppeteer.launch({
+                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
+                headless: true,
+                args: [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu'
+                ]
+            });
+            page = await browser.newPage();
+            await page.setViewport({ width: 1280, height: 800 });
+            shouldClose = true;
+        }
 
         try {
-            const page = await browser.newPage();
-            await page.setViewport({ width: 1280, height: 800 });
-
-            // 1. Try to load session first
-            await this.loadSession(page);
+            // If using new browser, try load session
+            if (shouldClose) {
+                await this.loadSession(page);
+            }
 
             console.log(`[Scraper] Navigating to ${url}...`);
             await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
             console.log(`[Scraper] Navigation complete. URL: ${page.url()}`);
+
+            // ... (rest of logic) ...
 
             // Check if we are on a login page
             let isLoginPage = await page.evaluate(() => {
@@ -69,10 +234,7 @@ class ScraperService {
 
             if (isLoginPage) {
                 if (!username || !password) {
-                    // Can't login, and session is apparently invalid.
-                    // But maybe the user just wants public info if available? 
-                    // Usually Manpro requires login. We'll warn but proceed to extract what we can (often nothing).
-                    console.warn('[Scraper] Session expired/invalid and no credentials provided. Extraction may fail.');
+                    console.warn('[Scraper] Session expired/invalid and no credentials provided.');
                 } else {
                     console.log('[Scraper] Session invalid or expired. Logging in...');
 
@@ -106,7 +268,6 @@ class ScraperService {
 
                         console.log(`[Scraper] Post-login URL: ${page.url()}`);
 
-                        // Verify if login succeeded
                         isLoginPage = await page.evaluate(() => !!document.querySelector('input[type="password"]'));
 
                         if (!isLoginPage) {
@@ -325,8 +486,12 @@ class ScraperService {
             console.error('[Scraper] Error during scraping:', error);
             throw error;
         } finally {
-            console.log('[Scraper] Closing browser.');
-            await browser.close();
+            if (shouldClose) {
+                console.log('[Scraper] Closing browser.');
+                await browser.close();
+            } else {
+                console.log('[Scraper] Keeping Shared Admin Session alive.');
+            }
         }
     }
     async createManproIssue(data, username, password, dryRun = true) {

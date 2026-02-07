@@ -16,7 +16,7 @@ const ActivityLog = sequelize.define('ActivityLog', {
         allowNull: true,
     },
     action: {
-        type: DataTypes.ENUM('CREATE', 'UPDATE', 'DELETE'),
+        type: DataTypes.ENUM('CREATE', 'UPDATE', 'DELETE', 'VIEW', 'LOGIN'),
         allowNull: false,
     },
     module: {

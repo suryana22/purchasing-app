@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Role = require('../models/Role');
 const Permission = require('../models/Permission');
+const ActivityLog = require('../models/ActivityLog');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
@@ -38,6 +39,17 @@ module.exports = {
             };
 
             const token = jwt.sign(payload, process.env.JWT_SECRET || 'secret', { expiresIn: '24h' });
+
+            // Log Login Activity
+            await ActivityLog.create({
+                user_id: user.id,
+                username: user.username,
+                action: 'LOGIN',
+                module: 'AUTH',
+                target_id: user.id.toString(),
+                details: 'User Logged In',
+                ip_address: req.headers['x-forwarded-for'] || req.connection.remoteAddress
+            });
 
             res.status(200).json({
                 message: 'Login successful',

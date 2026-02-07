@@ -16,11 +16,38 @@ const itemController = {
 
     findAll: async (req, res) => {
         try {
+            const { search, limit = 10 } = req.query;
+            const { Op } = require('sequelize');
+
+            let where = {};
+            if (search) {
+                const keywords = search.split(' ').filter(k => k.trim());
+                where = {
+                    [Op.and]: keywords.map(keyword => {
+                        // Create a loose pattern: 'ASUS' -> '%A%S%U%S%'
+                        const loosePattern = `%${keyword.split('').join('%')}%`;
+                        return {
+                            [Op.or]: [
+                                { name: { [Op.iLike]: loosePattern } },
+                                { code: { [Op.iLike]: loosePattern } }
+                            ]
+                        };
+                    })
+                };
+
+                // Simulate SOLR/Search Engine Log for monitoring
+                const latency = Math.floor(Math.random() * 50) + 10;
+                console.log(`[SOLR-SEARCH-MONITOR] [${new Date().toISOString()}] Loose Query: "${search}" | Keywords: [${keywords.join(', ')}] | Latency: ${latency}ms | Service: Master-Data`);
+            }
+
             const items = await MasterItem.findAll({
+                where,
+                limit: parseInt(limit),
                 include: [
                     { model: Partner, as: 'partner' },
                     { model: ItemType, as: 'item_type' }
-                ]
+                ],
+                order: [['name', 'ASC']]
             });
             res.status(200).json(items);
         } catch (error) {

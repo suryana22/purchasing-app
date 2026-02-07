@@ -32,6 +32,14 @@ interface Order {
     manpro_manual_status?: string;
     manpro_post_approval_url?: string;
     manpro_post_is_closed?: boolean;
+    notes?: string;
+    OrderItems?: {
+        id: number;
+        item_name: string;
+        quantity: number;
+        description?: string;
+        spec_description?: string;
+    }[];
 }
 
 export default function TrackingPage() {
@@ -245,6 +253,23 @@ export default function TrackingPage() {
                                                 <Calendar className="w-3 h-3" />
                                                 {new Date(order.createdAt || order.date || new Date()).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
                                             </div>
+                                            {order.OrderItems && order.OrderItems.length > 0 && (
+                                                <div className="mt-2 text-[9px] text-slate-500 font-medium italic border-t border-slate-100/50 pt-1.5 space-y-1">
+                                                    {order.OrderItems.map((i, idx) => (
+                                                        <div key={idx} className="flex items-start gap-1.5">
+                                                            <Package className="w-2.5 h-2.5 text-slate-300 shrink-0 mt-0.5" />
+                                                            <span className="leading-relaxed">
+                                                                {i.item_name} (x{i.quantity}){i.spec_description ? ` - ${i.spec_description}` : ''}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {order.notes && (
+                                                <div className="mt-2 p-2 bg-amber-50/20 rounded-lg border border-amber-50 text-[8px] text-amber-700 italic leading-relaxed">
+                                                    <strong>Note:</strong> {order.notes}
+                                                </div>
+                                            )}
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 uppercase">

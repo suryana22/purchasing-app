@@ -26,8 +26,12 @@ const registerRoutes = (path, controller, moduleName) => {
 router.post('/auth/login', authController.login);
 
 // Protected Routes
+router.get('/departments/count', authenticateToken, checkPermission('departments.view'), departmentController.count);
 registerRoutes('/departments', departmentController, 'departments');
+
 registerRoutes('/items', itemController, 'items');
+
+router.get('/partners/count', authenticateToken, checkPermission('partners.view'), partnerController.count);
 registerRoutes('/partners', partnerController, 'partners');
 registerRoutes('/users', userController, 'users');
 registerRoutes('/roles', roleController, 'roles');
@@ -47,7 +51,9 @@ const settingController = require('../controllers/settingController');
 router.get('/settings', authenticateToken, checkPermission('settings.view'), settingController.getSettings);
 router.post('/settings', authenticateToken, checkPermission('settings.edit'), settingController.updateSettings);
 
-
+// System Status & Monitoring
+const systemController = require('../controllers/systemController');
+router.get('/system/status', authenticateToken, checkPermission('settings.view'), systemController.getSystemHealth);
 
 module.exports = router;
 

@@ -6,6 +6,7 @@ const OrderAnalysis = require('../models/OrderAnalysis');
 const { logActivity } = require('../utils/audit');
 const Notification = require('../models/Notification');
 const scraper = require('../services/manproScraper');
+const solr = require('../utils/solr');
 
 module.exports = {
     create: async (req, res) => {
@@ -64,6 +65,9 @@ module.exports = {
 
             await logActivity(req, 'CREATE', 'Order', createdOrder.order_number, req.body);
 
+            // Sync to Solr
+            await solr.add('orders', createdOrder.toJSON());
+
             // Create Notification
             await Notification.create({
                 message: `New Order Created: ${createdOrder.order_number}`,
@@ -82,12 +86,45 @@ module.exports = {
 
     findAll: async (req, res) => {
         try {
+            const { search } = req.query;
             const where = {};
 
             // Filter: Only Administrator and IT Support can see all orders
             const userRole = req.user.role ? req.user.role.toLowerCase() : '';
             if (userRole !== 'administrator' && userRole !== 'it support') {
                 where.user_id = req.user.id;
+            }
+
+            if (search) {
+                // Solr Search
+                const solrDocs = await solr.search('orders', search);
+
+                if (solrDocs !== null) {
+                    if (solrDocs.length > 0) {
+                        const ids = solrDocs.map(doc => doc.id);
+                        where.id = ids;
+                    } else {
+                        // Solr returns no matches
+                        return res.status(200).json([]);
+                    }
+                } else {
+                    // Fallback to DB
+                    console.warn('Fallback to DB search for Orders');
+                    where[Op.and] = [
+                        ...(where[Op.and] || []),
+                        {
+                            [Op.or]: [
+                                { order_number: { [Op.iLike]: `%${search}%` } },
+                                { notes: { [Op.iLike]: `%${search}%` } }
+                            ]
+                        }
+                    ];
+                    // Note: Combining with user_id check is handled by `where` object structure automatically if strict equality
+                    // But mixing with Op.or/and needs care. 
+                    // Since `where.user_id` is top level, Sequelize ANDs it with other props.
+                    // But if I use Op.or for search, I need to ensure it doesn't override.
+                    // The above structure `where[Op.and]` works alongside `where.user_id`.
+                }
             }
 
             const orders = await Order.findAll({
@@ -417,6 +454,67 @@ module.exports = {
         } catch (error) {
             console.error('Manpro Creation Error:', error);
             res.status(500).json({ error: 'Failed to create Manpro document: ' + error.message });
+        }
+    },
+
+    count: async (req, res) => {
+        try {
+            const count = await Order.count();
+            res.status(200).json({ count });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
+    startManproSession: async (req, res) => {
+        try {
+            // Security: Only administrator
+            const userRole = req.user.role ? req.user.role.toLowerCase() : '';
+            if (userRole !== 'administrator') {
+                return res.status(403).json({ error: 'Access denied. Only Administrator can start session.' });
+            }
+
+            const { username, password } = req.body;
+
+            // Try fallback to env if not provided
+            const finalUser = username || process.env.MANPRO_USERNAME;
+            const finalPass = password || process.env.MANPRO_PASSWORD;
+
+            if (!finalUser || !finalPass) {
+                return res.status(400).json({ error: 'Credentials required' });
+            }
+
+            const success = await scraper.initAdminSession(finalUser, finalPass);
+            if (success) {
+                res.status(200).json({ message: 'Session started successfully' });
+            } else {
+                res.status(500).json({ error: 'Failed to start session' });
+            }
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
+    stopManproSession: async (req, res) => {
+        try {
+            await scraper.stopAdminSession();
+            res.status(200).json({ message: 'Session stopped' });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
+    getManproStatus: async (req, res) => {
+        try {
+            const connected = !!(scraper.adminSession && scraper.adminSession.page);
+            const latency = scraper.getLatency();
+            res.status(200).json({
+                connected,
+                latency,
+                lastCheck: new Date()
+            });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
         }
     }
 };

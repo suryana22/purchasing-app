@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Plus, Trash2, Loader2, Edit, Eye, Search, X, Printer, Package, Building, User, Calendar, FileText, AlertCircle, Calculator, CheckCircle, XCircle, ClipboardList, PenTool, RefreshCcw, ArrowRight, Server, Save, ExternalLink } from 'lucide-react';
+import { Plus, Minus, Trash2, Loader2, Edit, Eye, Search, X, Printer, Package, Building, User, Calendar, FileText, AlertCircle, Calculator, CheckCircle, XCircle, ClipboardList, PenTool, RefreshCcw, ArrowRight, Server, Save, ExternalLink } from 'lucide-react';
 import Modal from '@/components/Modal';
+import ItemSelector from '@/components/ItemSelector';
 import Toast from '@/components/Toast';
 import { useToast } from '@/hooks/useToast';
 import { useAuth } from '@/components/AuthProvider';
@@ -288,21 +289,25 @@ export default function OrdersPage() {
 
     const handleSelectItem = (masterItem: MasterItem) => {
         if (activeItemIndex !== null) {
-            const newItems = [...items];
-            const currentItem = newItems[activeItemIndex];
-
-            newItems[activeItemIndex] = {
-                ...currentItem,
-                item_name: masterItem.name,
-                code: masterItem.code,
-                unit_price: masterItem.price,
-                total_price: currentItem.quantity * masterItem.price
-            };
-
-            setItems(newItems);
+            handleSelectItemAt(activeItemIndex, masterItem);
             setIsItemPickerOpen(false);
             setActiveItemIndex(null);
         }
+    };
+
+    const handleSelectItemAt = (index: number, masterItem: any) => {
+        const newItems = [...items];
+        const currentItem = newItems[index];
+
+        newItems[index] = {
+            ...currentItem,
+            item_name: masterItem.name,
+            code: masterItem.code,
+            unit_price: masterItem.price,
+            total_price: currentItem.quantity * masterItem.price
+        };
+
+        setItems(newItems);
     };
 
     const handleOpenSpecialInput = (index: number) => {
@@ -772,17 +777,17 @@ export default function OrdersPage() {
                     {hasPermission('orders.special') && (
                         <button
                             onClick={handleOpenSpecialModal}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-slate-800 text-white font-bold rounded-xl shadow-lg hover:bg-slate-900 transition-all active:scale-95"
+                            className="flex items-center gap-2 px-4 py-2 bg-slate-800 text-white font-black rounded-xl shadow-lg hover:bg-slate-900 transition-all active:scale-95 text-[10px] md:text-xs uppercase tracking-widest"
                         >
-                            <FileText className="w-5 h-5" /> Pesanan Khusus
+                            <FileText className="w-4 h-4" /> Pesanan Khusus
                         </button>
                     )}
                     {hasPermission('orders.create') && (
                         <button
                             onClick={handleOpenModal}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95"
+                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-black rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all active:scale-95 text-[10px] md:text-xs uppercase tracking-widest"
                         >
-                            <Plus className="w-5 h-5" /> Tambah Pemesanan
+                            <Plus className="w-4 h-4" /> Tambah Pemesanan
                         </button>
                     )}
                 </div>
@@ -803,9 +808,116 @@ export default function OrdersPage() {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
+                <div className="md:hidden divide-y divide-slate-100 italic">
+                    {filteredOrders.length === 0 ? (
+                        <div className="px-6 py-12 text-center text-slate-400">
+                            <Package className="w-10 h-10 opacity-20 mx-auto mb-2" />
+                            <p className="text-sm font-medium">Belum ada data pemesanan</p>
+                        </div>
+                    ) : (
+                        filteredOrders.map((order) => (
+                            <div key={order.id} className="p-4 bg-white space-y-3">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <div className="font-black text-slate-900 text-xs uppercase tracking-tight">{order.order_number}</div>
+                                        <div className="text-[9px] text-slate-400 font-bold flex items-center gap-1 mt-0.5">
+                                            <Calendar className="w-2.5 h-2.5" />
+                                            {new Date(order.createdAt || order.date || order.order_date || new Date()).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                        </div>
+                                    </div>
+                                    <span className={`px-2 py-0.5 text-[8px] font-black uppercase rounded-lg border 
+                                        ${order.status === 'DRAFT' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                                            order.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                                                order.status === 'REJECTED' ? 'bg-red-50 text-red-600 border-red-100' :
+                                                    order.status === 'PENDING' ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-slate-50 text-slate-600 border-slate-100'}
+                                    `}>
+                                        {order.status}
+                                    </span>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1">
+                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Dept</p>
+                                        <p className="text-[10px] font-bold text-slate-700 uppercase line-clamp-1">
+                                            {departments.find(d => d.id === order.department_id)?.name || '-'}
+                                        </p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Rekanan</p>
+                                        <p className="text-[10px] font-bold text-slate-700 uppercase line-clamp-1">
+                                            {order.partner_id ? partners.find(p => p.id === order.partner_id)?.name || '-' : '-'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1.5 py-2.5 border-y border-slate-50/50">
+                                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-0.5">Item Pesanan</p>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {order.OrderItems?.map((item, idx) => (
+                                            <div key={idx} className="flex flex-col gap-1 text-[9px] font-bold text-slate-600 bg-slate-50/80 p-2 rounded-lg border border-slate-100 flex-1 min-w-[140px]">
+                                                <div className="flex items-center gap-1.5">
+                                                    <Package className="w-2.5 h-2.5 text-blue-400" />
+                                                    <span className="truncate flex-1">{item.item_name}</span>
+                                                    <span className="text-blue-600">x{item.quantity}</span>
+                                                </div>
+                                                {item.spec_description && (
+                                                    <div className="text-[8px] text-slate-400 leading-tight border-t border-slate-100/50 pt-1 mt-1 font-medium capitalize italic">
+                                                        {item.spec_description}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )) || <span className="text-[10px] text-slate-300 italic">Tidak ada item</span>}
+                                    </div>
+                                    {order.notes && (
+                                        <div className="mt-2.5 p-2 bg-amber-50/30 border border-amber-100/50 rounded-lg">
+                                            <p className="text-[7px] font-black text-amber-600 uppercase tracking-widest mb-0.5">Note/Keterangan</p>
+                                            <p className="text-[9px] text-slate-600 font-medium leading-relaxed italic">{order.notes}</p>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex justify-between items-center pt-2 border-t border-slate-50">
+                                    <div>
+                                        <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total (inc PPN)</p>
+                                        <p className="text-xs font-black text-blue-600 font-mono">Rp {(Number(order.grand_total) || 0).toLocaleString()}</p>
+                                    </div>
+                                    <div className="flex gap-1">
+                                        {/* View Details */}
+                                        <button onClick={() => handleViewOrder(order)} className="p-2 text-slate-400 hover:text-blue-600 transition-colors" title="Pratinjau"><Eye className="w-4 h-4" /></button>
+
+                                        {/* Print - Approved only */}
+                                        {order.status === 'APPROVED' && <button onClick={() => handleOpenPrintOptions(order)} className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Cetak"><Printer className="w-4 h-4" /></button>}
+
+                                        {/* Analisa - IT Support / Admin */}
+                                        {hasPermission('orders.analysis') && (
+                                            <button onClick={() => handleOpenAnalysisModal(order)} className={`p-2 rounded-lg transition-colors ${order.Analysis ? 'text-emerald-600 bg-emerald-50' : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'}`} title="Analisa"><ClipboardList className="w-4 h-4" /></button>
+                                        )}
+
+                                        {/* Approval Controls - Kadiv, Kadept, Direktur, Admin */}
+                                        {(['administrator', 'kadiv', 'kadept', 'direktur'].includes(user?.role?.toLowerCase() || '')) && order.status === 'PENDING' && (
+                                            <>
+                                                <button onClick={() => handleUpdateStatus(order.id, 'APPROVED')} className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors" title="Setujui"><CheckCircle className="w-4 h-4" /></button>
+                                                <button onClick={() => handleUpdateStatus(order.id, 'REJECTED')} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Tolak"><XCircle className="w-4 h-4" /></button>
+                                            </>
+                                        )}
+
+                                        {/* Edit - If Draft or Admin/IT */}
+                                        {(order.status === 'DRAFT' || ['administrator', 'it support'].includes(user?.role?.toLowerCase() || '')) && (
+                                            <button onClick={() => handleEditOrder(order)} className="p-2 text-orange-500 hover:bg-orange-50 rounded-lg transition-colors" title="Edit"><Edit className="w-4 h-4" /></button>
+                                        )}
+
+                                        {/* Delete - Admin only */}
+                                        {user?.role?.toLowerCase() === 'administrator' && (
+                                            <button onClick={() => handleDeleteOrder(order.id)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Hapus"><Trash2 className="w-4 h-4" /></button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                <div className="hidden md:block overflow-x-auto italic">
                     <table className="w-full text-left">
-                        <thead className="bg-slate-50 text-slate-500 text-[10px] uppercase font-black tracking-widest">
+                        <thead className="bg-slate-50 text-slate-500 text-[9px] uppercase font-black tracking-widest">
                             <tr>
                                 <th className="px-6 py-4">Informasi Order</th>
                                 <th className="px-6 py-4">Department & Site</th>
@@ -815,7 +927,7 @@ export default function OrdersPage() {
                                 <th className="px-6 py-4 text-right">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100 italic">
+                        <tbody className="divide-y divide-slate-100">
                             {filteredOrders.length === 0 ? (
                                 <tr>
                                     <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
@@ -828,9 +940,9 @@ export default function OrdersPage() {
                             ) : (
                                 filteredOrders.map((order) => (
                                     <tr key={order.id} className="hover:bg-slate-50/50 transition-colors group">
-                                        <td className="px-6 py-4">
+                                        <td className="px-6 py-3">
                                             <div
-                                                className="font-black text-slate-900 uppercase tracking-tight leading-none mb-1 cursor-help hover:text-blue-600 transition-colors inline-block"
+                                                className="font-black text-slate-900 text-xs uppercase tracking-tight leading-none mb-1 cursor-help hover:text-blue-600 transition-colors inline-block"
                                                 onMouseEnter={(e) => {
                                                     const rect = e.currentTarget.getBoundingClientRect();
                                                     setHoverPosition({ x: rect.right + 10, y: rect.top });
@@ -840,29 +952,46 @@ export default function OrdersPage() {
                                             >
                                                 {order.order_number}
                                             </div>
-                                            <div className="flex items-center gap-1 text-[10px] text-slate-400 font-bold">
+                                            <div className="flex items-center gap-1 text-[9px] text-slate-400 font-bold">
                                                 <Calendar className="w-3 h-3" />
                                                 {new Date(order.createdAt || order.date || order.order_date || new Date()).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
                                             </div>
+                                            {order.OrderItems && order.OrderItems.length > 0 && (
+                                                <div className="mt-2 text-[9px] text-slate-500 font-medium italic border-t border-slate-100/50 pt-1.5 space-y-1">
+                                                    {order.OrderItems.map((i, idx) => (
+                                                        <div key={idx} className="flex items-start gap-1.5">
+                                                            <Package className="w-2.5 h-2.5 text-slate-300 shrink-0 mt-0.5" />
+                                                            <span className="leading-relaxed">
+                                                                {i.item_name} (x{i.quantity}){i.spec_description ? ` - ${i.spec_description}` : ''}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {order.notes && (
+                                                <div className="mt-2 p-2 bg-amber-50/20 rounded-lg border border-amber-50 text-[8px] text-amber-700 italic leading-relaxed">
+                                                    <strong>Note:</strong> {order.notes}
+                                                </div>
+                                            )}
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 uppercase">
+                                        <td className="px-6 py-3">
+                                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-700 uppercase">
                                                 <Building className="w-3.5 h-3.5 text-blue-400" />
                                                 {departments.find(d => d.id === order.department_id)?.name || '-'}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 uppercase">
+                                        <td className="px-6 py-3">
+                                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-700 uppercase">
                                                 <User className="w-3.5 h-3.5 text-emerald-400" />
                                                 {order.partner_id ? partners.find(p => p.id === order.partner_id)?.name || '-' : '-'}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="text-sm font-black text-slate-900 tracking-tighter">Rp {(Number(order.grand_total) || 0).toLocaleString()}</div>
-                                            <div className="text-[10px] text-slate-400 font-medium">Exc. PPN: Rp {(Number(order.subtotal) || 0).toLocaleString()}</div>
+                                        <td className="px-6 py-3 text-right">
+                                            <div className="text-xs font-black text-slate-900 tracking-tighter italic">Rp {(Number(order.grand_total) || 0).toLocaleString()}</div>
+                                            <div className="text-[9px] text-slate-400 font-medium">Exc. PPN: Rp {(Number(order.subtotal) || 0).toLocaleString()}</div>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span className={`inline-flex px-2 py-1 text-[10px] font-black uppercase rounded-lg border 
+                                        <td className="px-6 py-3 text-center">
+                                            <span className={`inline-flex px-2 py-0.5 text-[9px] font-black uppercase rounded-lg border 
                                                 ${order.status === 'DRAFT' ? 'bg-amber-50 text-amber-600 border-amber-100' :
                                                     order.status === 'APPROVED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                                                         order.status === 'REJECTED' ? 'bg-red-50 text-red-600 border-red-100' :
@@ -871,58 +1000,35 @@ export default function OrdersPage() {
                                                 {order.status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex justify-end gap-1.5">
-                                                <button
-                                                    onClick={() => handleViewOrder(order)}
-                                                    className="p-2 rounded-lg transition-all text-slate-400 hover:text-blue-600 hover:bg-blue-50"
-                                                    title="Pratinjau Detail"
-                                                >
-                                                    <Eye className="w-4 h-4" />
-                                                </button>
-                                                {order.status === 'APPROVED' && (
-                                                    <button
-                                                        onClick={() => handleOpenPrintOptions(order)}
-                                                        className="p-2 rounded-lg transition-all text-emerald-600 hover:bg-emerald-50"
-                                                        title="Cetak Dokumen"
-                                                    >
-                                                        <Printer className="w-4 h-4" />
-                                                    </button>
+                                        <td className="px-6 py-3 text-right">
+                                            <div className="flex justify-end gap-1">
+                                                {/* View Details */}
+                                                <button onClick={() => handleViewOrder(order)} className="p-1.5 rounded-lg transition-all text-slate-400 hover:text-blue-600 hover:bg-blue-50" title="Pratinjau"><Eye className="w-3.5 h-3.5" /></button>
+
+                                                {/* Print - Approved only */}
+                                                {order.status === 'APPROVED' && <button onClick={() => handleOpenPrintOptions(order)} className="p-1.5 rounded-lg transition-all text-emerald-600 hover:bg-emerald-50" title="Cetak"><Printer className="w-3.5 h-3.5" /></button>}
+
+                                                {/* Analisa - IT Support / Admin */}
+                                                {hasPermission('orders.analysis') && (
+                                                    <button onClick={() => handleOpenAnalysisModal(order)} className={`p-1.5 rounded-lg transition-all ${order.Analysis ? 'text-emerald-600 bg-emerald-50 shadow-sm' : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'}`} title="Analisa"><ClipboardList className="w-3.5 h-3.5" /></button>
                                                 )}
-                                                {order.status === 'APPROVED' && hasPermission('orders.analysis') && (
-                                                    <button
-                                                        onClick={() => handleOpenAnalysisModal(order)}
-                                                        className={`p-2 rounded-lg transition-all ${order.Analysis ? 'text-emerald-600 bg-emerald-50 shadow-sm' : 'text-slate-400 hover:text-emerald-600 hover:bg-emerald-50'}`}
-                                                        title={order.Analysis ? "Ubah Analisa Permintaan" : "Tambah Analisa Permintaan"}
-                                                    >
-                                                        <ClipboardList className="w-4 h-4" />
-                                                    </button>
+
+                                                {/* Approval Controls - Approvers only */}
+                                                {(['administrator', 'kadiv', 'kadept', 'direktur'].includes(user?.role?.toLowerCase() || '')) && order.status === 'PENDING' && (
+                                                    <>
+                                                        <button onClick={() => handleUpdateStatus(order.id, 'APPROVED')} className="p-1.5 rounded-lg transition-all text-emerald-600 hover:bg-emerald-50" title="Setujui"><CheckCircle className="w-3.5 h-3.5" /></button>
+                                                        <button onClick={() => handleUpdateStatus(order.id, 'REJECTED')} className="p-1.5 rounded-lg transition-all text-red-600 hover:bg-red-50" title="Tolak"><XCircle className="w-3.5 h-3.5" /></button>
+                                                    </>
                                                 )}
-                                                {hasPermission('orders.edit') && (
-                                                    <button
-                                                        onClick={() => (order.status === 'DRAFT' || ['administrator', 'it support'].includes(user?.role?.toLowerCase() || '')) && handleEditOrder(order)}
-                                                        disabled={order.status !== 'DRAFT' && !['administrator', 'it support'].includes(user?.role?.toLowerCase() || '')}
-                                                        className={`p-2 rounded-lg transition-all ${order.status === 'DRAFT' || ['administrator', 'it support'].includes(user?.role?.toLowerCase() || '')
-                                                            ? 'text-slate-400 hover:text-orange-600 hover:bg-orange-50 cursor-pointer'
-                                                            : 'text-slate-200 cursor-not-allowed opacity-40 pointer-events-none'
-                                                            }`}
-                                                        title={order.status === 'DRAFT' || ['administrator', 'it support'].includes(user?.role?.toLowerCase() || '') ? "Ubah" : "Tidak dapat diubah (Sudah Disetujui)"}
-                                                    >
-                                                        <Edit className="w-4 h-4" />
-                                                    </button>
+
+                                                {/* Edit - If Draft or Admin/IT */}
+                                                {(order.status === 'DRAFT' || ['administrator', 'it support'].includes(user?.role?.toLowerCase() || '')) && (
+                                                    <button onClick={() => handleEditOrder(order)} className="p-1.5 rounded-lg transition-all text-orange-500 hover:bg-orange-50" title="Edit"><Edit className="w-3.5 h-3.5" /></button>
                                                 )}
-                                                {hasPermission('orders.delete') && (
-                                                    <button
-                                                        onClick={() => (order.status === 'DRAFT' || ['administrator', 'it support'].includes(user?.role?.toLowerCase() || '')) && handleDeleteOrder(order.id)}
-                                                        disabled={order.status !== 'DRAFT' && !['administrator', 'it support'].includes(user?.role?.toLowerCase() || '')}
-                                                        className={`p-2 rounded-lg transition-all ${order.status === 'DRAFT' || ['administrator', 'it support'].includes(user?.role?.toLowerCase() || '')
-                                                            ? 'text-slate-400 hover:text-red-600 hover:bg-red-50 cursor-pointer'
-                                                            : 'text-slate-200 cursor-not-allowed opacity-40 pointer-events-none'
-                                                            }`}
-                                                        title={order.status === 'DRAFT' || ['administrator', 'it support'].includes(user?.role?.toLowerCase() || '') ? "Hapus" : "Tidak dapat dihapus (Sudah Disetujui)"}
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
+
+                                                {/* Delete - Admin only */}
+                                                {user?.role?.toLowerCase() === 'administrator' && (
+                                                    <button onClick={() => handleDeleteOrder(order.id)} className="p-1.5 rounded-lg transition-all text-red-500 hover:bg-red-50" title="Hapus"><Trash2 className="w-3.5 h-3.5" /></button>
                                                 )}
                                             </div>
                                         </td>
@@ -947,15 +1053,15 @@ export default function OrdersPage() {
             >
                 <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div className="space-y-1.5">
-                            <label className="block text-sm font-bold text-slate-900 uppercase tracking-tight">Departemen Pemohon</label>
+                        <div className="space-y-2">
+                            <label className="block text-xs md:text-sm font-bold text-slate-700 uppercase tracking-tight ml-1">Departemen Pemohon</label>
                             <div className="relative">
-                                <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-slate-400" />
                                 <select
                                     value={selectedDepartment}
                                     onChange={(e) => setSelectedDepartment(e.target.value)}
                                     disabled={modalMode === 'view'}
-                                    className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900 font-bold disabled:bg-slate-50 disabled:text-slate-400"
+                                    className="w-full pl-12 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900 text-sm disabled:bg-slate-50 disabled:text-slate-400 font-medium"
                                 >
                                     <option value="">-- Pilih Departemen --</option>
                                     {departments.map((dept) => (
@@ -966,15 +1072,15 @@ export default function OrdersPage() {
                                 </select>
                             </div>
                         </div>
-                        <div className="space-y-1.5">
-                            <label className="block text-sm font-bold text-slate-900 uppercase tracking-tight">Vendor / Rekanan</label>
+                        <div className="space-y-2">
+                            <label className="block text-xs md:text-sm font-bold text-slate-700 uppercase tracking-tight ml-1">Vendor / Rekanan</label>
                             <div className="relative">
-                                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-slate-400" />
                                 <select
                                     value={selectedPartner}
                                     onChange={(e) => setSelectedPartner(e.target.value)}
                                     disabled={modalMode === 'view'}
-                                    className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900 font-bold disabled:bg-slate-50 disabled:text-slate-400"
+                                    className="w-full pl-12 pr-4 py-2.5 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900 text-sm disabled:bg-slate-50 disabled:text-slate-400 font-medium"
                                 >
                                     <option value="">-- Pilih Partner --</option>
                                     {partners.map((partner) => (
@@ -987,15 +1093,15 @@ export default function OrdersPage() {
                         </div>
                     </div>
 
-                    <div className="space-y-1.5">
-                        <label className="block text-sm font-bold text-slate-900 uppercase tracking-tight">Notes / Keterangan Tambahan</label>
+                    <div className="space-y-2">
+                        <label className="block text-xs md:text-sm font-bold text-slate-700 uppercase tracking-tight ml-1">Notes / Keterangan Tambahan</label>
                         <textarea
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                             disabled={modalMode === 'view'}
                             placeholder="Alasan pengajuan, urgensi, atau instruksi khusus..."
                             rows={2}
-                            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900 font-bold disabled:bg-slate-50 disabled:text-slate-400"
+                            className="w-full px-5 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900 text-sm font-medium disabled:bg-slate-50 disabled:text-slate-400"
                         />
                     </div>
 
@@ -1052,138 +1158,298 @@ export default function OrdersPage() {
                     )}
 
                     <div className="border-t border-slate-100 pt-6">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
-                                <Package className="w-5 h-5 text-blue-500" />
+                        <div className="flex justify-between items-center gap-2 mb-6 ml-1">
+                            <h3 className="text-[10px] md:text-sm font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                                <Package className="w-5 h-5 text-blue-500 hidden xs:block" />
                                 Daftar Barang Pengajuan
                             </h3>
                             {modalMode !== 'view' && (
                                 <button
                                     type="button"
                                     onClick={addItem}
-                                    className="flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-700 font-black uppercase tracking-tighter"
+                                    className="flex items-center gap-2 text-[10px] md:text-xs text-blue-600 hover:text-blue-700 font-black uppercase tracking-widest bg-blue-50/50 px-3 py-1.5 rounded-xl transition-all shrink-0"
                                 >
-                                    <Plus className="w-4 h-4 bg-blue-100 rounded-full" /> Tambah Baris {modalMode === 'special' ? 'Khusus' : ''}
+                                    <Plus className="w-4 h-4 bg-blue-200 rounded-full" /> Tambah Item {modalMode === 'special' ? 'Khusus' : ''}
                                 </button>
                             )}
                         </div>
 
-                        <div className="space-y-3 max-h-[440px] overflow-y-auto pr-2 custom-scrollbar italic">
+                        <div className="space-y-1.5 max-h-[400px] overflow-y-auto pr-1 custom-scrollbar">
                             {items.map((item, index) => (
-                                <div key={index} className="flex gap-4 items-start bg-slate-50/50 p-4 rounded-2xl border border-slate-100 relative group/item">
-                                    <div className="flex-1 min-w-[200px] space-y-1">
-                                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Barang</label>
-                                        <div
-                                            onClick={() => modalMode === 'special' ? handleOpenSpecialInput(index) : (modalMode !== 'view' && handleOpenItemPicker(index))}
-                                            className={`w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-900 bg-white flex justify-between items-center group
-                                                ${modalMode !== 'view' ? 'cursor-pointer hover:border-blue-400 hover:shadow-sm' : 'bg-slate-50 cursor-default'}
-                                            `}
-                                        >
-                                            <div className="flex flex-col items-start gap-0.5 overflow-hidden">
-                                                <span className={item.item_name ? 'text-slate-900 font-bold uppercase truncate w-full' : 'text-slate-400'}>
-                                                    {item.item_name || (modalMode === 'special' ? 'Klik isi detail barang...' : 'Klik pilih barang...')}
-                                                </span>
+                                <div key={index} className="bg-white md:bg-slate-50/40 p-4 md:p-3 rounded-2xl md:rounded-xl border border-slate-100 relative group/item focus-within:z-40 transition-all hover:bg-slate-50 md:grid md:grid-cols-12 md:gap-2 md:items-end">
+                                    {/* Mobile Cart-Style Layout */}
+                                    <div className="md:hidden flex flex-col gap-3">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex-1 min-w-0">
+                                                {modalMode === 'special' ? (
+                                                    <div
+                                                        onClick={() => handleOpenSpecialInput(index)}
+                                                        className="cursor-pointer group flex items-center gap-2"
+                                                    >
+                                                        <span className="text-sm font-bold text-slate-900 uppercase truncate">
+                                                            {item.item_name || 'Isi detail barang...'}
+                                                        </span>
+                                                        <Edit className="w-3 h-3 text-slate-300" />
+                                                    </div>
+                                                ) : modalMode === 'view' ? (
+                                                    <p className="text-sm font-bold text-slate-900 uppercase truncate">{item.item_name}</p>
+                                                ) : (
+                                                    <ItemSelector
+                                                        initialValue={item.item_name}
+                                                        authenticatedFetch={authenticatedFetch}
+                                                        onSelect={(masterItem) => handleSelectItemAt(index, masterItem)}
+                                                        placeholder="Cari Barang..."
+                                                    />
+                                                )}
+
+                                                <div className="flex gap-3 mt-3">
+                                                    <div className="flex-1 space-y-1">
+                                                        <label className="block text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Kriteria (Unit)</label>
+                                                        <select
+                                                            value={item.description}
+                                                            onChange={(e) => updateItem(index, 'description', e.target.value)}
+                                                            disabled={modalMode === 'view'}
+                                                            className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-bold text-slate-900 focus:ring-1 focus:ring-blue-500 outline-none disabled:bg-slate-100"
+                                                        >
+                                                            <option value="">-- Pilih --</option>
+                                                            <option value="PBB">PBB</option>
+                                                            <option value="PBL">PBL</option>
+                                                            <option value="Service">Service</option>
+                                                        </select>
+                                                    </div>
+                                                    <div className="w-20 space-y-1">
+                                                        <label className="block text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">Tahun</label>
+                                                        <input
+                                                            type="number"
+                                                            min="2000"
+                                                            value={item.description === 'PBB' || item.description === 'Service' ? '' : item.procurement_year}
+                                                            onChange={(e) => updateItem(index, 'procurement_year', e.target.value)}
+                                                            disabled={modalMode === 'view' || item.description === 'PBB' || item.description === 'Service'}
+                                                            placeholder="-"
+                                                            className="w-full px-1 py-2 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-bold text-slate-900 text-center focus:ring-1 focus:ring-blue-500 outline-none disabled:bg-slate-100"
+                                                        />
+                                                    </div>
+                                                </div>
+
                                                 {item.spec_description && (
-                                                    <span className="text-[10px] text-slate-500 font-medium truncate w-full italic">
+                                                    <p className="text-[11px] text-slate-500 italic mt-1 line-clamp-2 leading-relaxed">
                                                         {item.spec_description}
-                                                    </span>
+                                                    </p>
                                                 )}
                                             </div>
                                             {modalMode !== 'view' && (
-                                                modalMode === 'special' ? <Edit className="w-4 h-4 text-slate-300 group-hover:text-blue-500" /> : <Search className="w-4 h-4 text-slate-300 group-hover:text-blue-500" />
+                                                <button
+                                                    onClick={() => removeItem(index)}
+                                                    className="p-1.5 text-slate-300 hover:text-red-500 transition-colors"
+                                                >
+                                                    <Trash2 className="w-4.5 h-4.5" />
+                                                </button>
                                             )}
                                         </div>
-                                    </div>
-                                    <div className="flex-[0.8] min-w-[150px] space-y-1">
-                                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Keterangan Unit</label>
-                                        <input
-                                            type="text"
-                                            value={item.description}
-                                            onChange={(e) => updateItem(index, 'description', e.target.value)}
-                                            disabled={modalMode === 'view'}
-                                            placeholder="e.g. Ruangan Radiologi"
-                                            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 font-bold focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-slate-50"
-                                        />
-                                    </div>
-                                    <div className="w-24 space-y-1">
-                                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Tahun</label>
-                                        <input
-                                            type="number"
-                                            min="2000"
-                                            max="2100"
-                                            value={item.procurement_year}
-                                            onChange={(e) => updateItem(index, 'procurement_year', e.target.value)}
-                                            disabled={modalMode === 'view'}
-                                            placeholder="2026"
-                                            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 font-bold focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-slate-50 text-center"
-                                        />
-                                    </div>
-                                    <div className="w-16 space-y-1">
-                                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Qty</label>
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            value={item.quantity}
-                                            onChange={(e) => updateItem(index, 'quantity', e.target.value)}
-                                            disabled={modalMode === 'view'}
-                                            className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 font-bold focus:ring-2 focus:ring-blue-500 outline-none disabled:bg-slate-50 text-center"
-                                        />
-                                    </div>
-                                    {modalMode === 'special' && (
-                                        <div className="w-32 space-y-1">
-                                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Harga Satuan</label>
-                                            <div
-                                                onClick={() => handleOpenSpecialInput(index)}
-                                                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 font-bold text-right cursor-pointer hover:border-blue-500"
-                                            >
-                                                {item.unit_price.toLocaleString()}
+
+                                        <div className="flex justify-between items-center bg-slate-50/50 p-2.5 rounded-xl border border-slate-100">
+                                            <div className="space-y-0.5">
+                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Subtotal</p>
+                                                <p className="text-sm font-black text-blue-600 font-mono">Rp {item.total_price.toLocaleString()}</p>
+                                            </div>
+
+                                            <div className="flex items-center bg-white border border-slate-300 shadow-sm rounded-lg overflow-hidden h-9">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => updateItem(index, 'quantity', Math.max(1, (parseInt(item.quantity) || 1) - 1))}
+                                                    disabled={modalMode === 'view'}
+                                                    className="px-2.5 h-full hover:bg-slate-50 text-slate-400 hover:text-red-500 transition-colors disabled:opacity-30"
+                                                >
+                                                    <Minus className="w-3.5 h-3.5" />
+                                                </button>
+                                                <input
+                                                    type="number"
+                                                    value={item.quantity}
+                                                    onChange={(e) => updateItem(index, 'quantity', e.target.value)}
+                                                    disabled={modalMode === 'view'}
+                                                    className="w-10 text-center text-xs font-black text-slate-900 bg-transparent outline-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none border-x border-slate-100"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => updateItem(index, 'quantity', (parseInt(item.quantity) || 0) + 1)}
+                                                    disabled={modalMode === 'view'}
+                                                    className="px-2.5 h-full hover:bg-slate-50 text-slate-400 hover:text-blue-500 transition-colors disabled:opacity-30"
+                                                >
+                                                    <Plus className="w-3.5 h-3.5" />
+                                                </button>
                                             </div>
                                         </div>
-                                    )}
-                                    <div className="w-32 space-y-1">
-                                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Baris</label>
-                                        <div className="w-full px-4 py-2.5 bg-blue-50/50 border border-blue-100 rounded-xl text-sm font-black text-blue-700 text-right tracking-tighter">
-                                            {item.total_price.toLocaleString()}
-                                        </div>
                                     </div>
-                                    {modalMode !== 'view' && (
-                                        <button
-                                            type="button"
-                                            onClick={() => removeItem(index)}
-                                            className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl mt-6 transition-all border border-transparent hover:border-red-100"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    )}
+
+                                    {/* Desktop Row Layout */}
+                                    <div className="hidden md:contents">
+                                        <div className={`${modalMode === 'special' ? 'md:col-span-3' : 'md:col-span-5'} space-y-1`}>
+                                            <label className="block text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Nama Barang</label>
+                                            {modalMode === 'special' ? (
+                                                <div
+                                                    onClick={() => handleOpenSpecialInput(index)}
+                                                    className={`w-full px-3 py-2 border border-slate-200 rounded-lg text-xs text-slate-900 bg-white flex justify-between items-center group
+                                                        ${modalMode !== 'view' ? 'cursor-pointer hover:border-blue-400' : 'bg-slate-50 pointer-events-none'}
+                                                    `}
+                                                >
+                                                    <div className="flex flex-col items-start overflow-hidden">
+                                                        <span className={item.item_name ? 'text-slate-900 font-bold uppercase truncate w-full' : 'text-slate-400'}>
+                                                            {item.item_name || 'Isi detail...'}
+                                                        </span>
+                                                    </div>
+                                                    {modalMode !== 'view' && <Edit className="w-3 h-3 text-slate-300 group-hover:text-blue-500" />}
+                                                </div>
+                                            ) : modalMode === 'view' ? (
+                                                <div className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-900">
+                                                    <div className="font-bold uppercase truncate">{item.item_name}</div>
+                                                </div>
+                                            ) : (
+                                                <ItemSelector
+                                                    initialValue={item.item_name}
+                                                    authenticatedFetch={authenticatedFetch}
+                                                    onSelect={(masterItem) => handleSelectItemAt(index, masterItem)}
+                                                    placeholder="Cari Barang..."
+                                                />
+                                            )}
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2 md:contents">
+                                            <div className="md:col-span-2 space-y-1">
+                                                <label className="block text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Unit</label>
+                                                <select
+                                                    value={item.description}
+                                                    onChange={(e) => updateItem(index, 'description', e.target.value)}
+                                                    disabled={modalMode === 'view'}
+                                                    className="w-full px-2 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:ring-1 focus:ring-blue-500 outline-none disabled:bg-slate-50 font-medium"
+                                                >
+                                                    <option value="">--</option>
+                                                    <option value="PBB">PBB</option>
+                                                    <option value="PBL">PBL</option>
+                                                    <option value="Service">Service</option>
+                                                </select>
+                                            </div>
+                                            <div className="md:col-span-1 space-y-1">
+                                                <label className="block text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Thn</label>
+                                                <input
+                                                    type="number"
+                                                    min="2000"
+                                                    value={item.description === 'PBB' || item.description === 'Service' ? '' : item.procurement_year}
+                                                    onChange={(e) => updateItem(index, 'procurement_year', e.target.value)}
+                                                    disabled={modalMode === 'view' || item.description === 'PBB' || item.description === 'Service'}
+                                                    placeholder="-"
+                                                    className="w-full px-1 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 focus:ring-1 focus:ring-blue-500 outline-none disabled:bg-slate-50 text-center font-medium"
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="md:col-span-1 space-y-1">
+                                            <label className="block text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Qty</label>
+                                            <div className="flex items-center bg-white border border-slate-200 rounded-lg overflow-hidden h-[34px]">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => updateItem(index, 'quantity', Math.max(1, (parseInt(item.quantity) || 1) - 1))}
+                                                    disabled={modalMode === 'view'}
+                                                    className="px-2 h-full hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-colors disabled:opacity-30 disabled:pointer-events-none"
+                                                >
+                                                    <Minus className="w-3 h-3" />
+                                                </button>
+                                                <input
+                                                    type="number"
+                                                    value={item.quantity}
+                                                    onChange={(e) => updateItem(index, 'quantity', e.target.value)}
+                                                    disabled={modalMode === 'view'}
+                                                    className="w-full text-center text-xs font-bold text-slate-900 bg-transparent outline-none p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => updateItem(index, 'quantity', (parseInt(item.quantity) || 0) + 1)}
+                                                    disabled={modalMode === 'view'}
+                                                    className="px-2 h-full hover:bg-slate-100 text-slate-400 hover:text-blue-500 transition-colors disabled:opacity-30 disabled:pointer-events-none border-l border-slate-100"
+                                                >
+                                                    <Plus className="w-3 h-3" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {modalMode === 'special' && (
+                                            <div className="md:col-span-2 space-y-1">
+                                                <label className="block text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest text-right mr-1">Satuan</label>
+                                                <div
+                                                    onClick={() => handleOpenSpecialInput(index)}
+                                                    className="w-full px-2 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 text-right cursor-pointer hover:border-blue-500 font-bold"
+                                                >
+                                                    {item.unit_price.toLocaleString()}
+                                                </div>
+                                            </div>
+                                        )}
+                                        <div className="md:col-span-2 space-y-1 text-right">
+                                            <label className="block text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mr-1">Total</label>
+                                            <div className="w-full px-3 py-2 bg-blue-50/50 border border-blue-100 rounded-lg text-xs font-black text-blue-700 text-right tracking-tight">
+                                                {item.total_price.toLocaleString()}
+                                            </div>
+                                        </div>
+                                        {modalMode !== 'view' && (
+                                            <div className="md:col-span-1 flex justify-center md:justify-end pb-1 md:pb-0">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeItem(index)}
+                                                    className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100 group"
+                                                    title="Hapus"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>
 
                         {/* Summary Section */}
-                        <div className="mt-8 bg-slate-900 rounded-3xl p-6 text-white shadow-2xl relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 blur-[80px] -mr-32 -mt-32"></div>
+                        {/* Mobile Sticky Footer */}
+                        <div className="md:hidden sticky bottom-0 -mx-4 -mb-4 bg-white border-t border-slate-100 p-4 shadow-[0_-20px_60px_-15px_rgba(0,0,0,0.15)] z-[60] flex items-center justify-between gap-4">
+                            <div className="space-y-0.5">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">Total Pesanan (inc PPN)</p>
+                                <p className="text-xl font-black text-slate-900 font-mono">Rp {calculateGrandTotal().toLocaleString()}</p>
+                            </div>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={handleCloseModal}
+                                    className="px-5 py-2.5 bg-slate-50 text-slate-600 font-black rounded-2xl border border-slate-200 text-[10px] uppercase tracking-widest active:scale-95 transition-all"
+                                >
+                                    Batal
+                                </button>
+                                <button
+                                    onClick={handleSubmitOrder}
+                                    className="px-7 py-2.5 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-100 text-[10px] uppercase tracking-widest active:scale-95 transition-all flex items-center gap-2"
+                                >
+                                    Pesan
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Desktop Summary Section */}
+                        <div className="mt-8 hidden md:block bg-slate-900 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/10 blur-[100px] -mr-32 -mt-32"></div>
                             <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-6">
-                                <div className="flex gap-6 items-center">
-                                    <div className="p-4 bg-white/10 rounded-2xl backdrop-blur-md border border-white/20">
-                                        <Calculator className="w-8 h-8 text-blue-400" />
+                                <div className="flex gap-5 items-center">
+                                    <div className="p-3 bg-white/10 rounded-xl backdrop-blur-md border border-white/20">
+                                        <Calculator className="w-6 h-6 text-blue-400" />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Rincian Valuasi Akhir</p>
+                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Valuasi Akhir</p>
                                         <div className="flex gap-6">
                                             <div>
-                                                <p className="text-[10px] text-slate-500 font-bold uppercase">Subtotal</p>
-                                                <p className="text-md font-bold text-white">Rp {calculateSubtotal().toLocaleString()}</p>
+                                                <p className="text-[9px] text-slate-500 font-bold uppercase">Subtotal</p>
+                                                <p className="text-sm font-bold text-white font-mono">Rp {calculateSubtotal().toLocaleString()}</p>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] text-slate-500 font-bold uppercase text-center">PPN (11%)</p>
-                                                <p className="text-md font-bold text-blue-300">Rp {calculatePPN().toLocaleString()}</p>
+                                                <p className="text-[9px] text-slate-500 font-bold uppercase text-center">PPN (11%)</p>
+                                                <p className="text-sm font-bold text-blue-300 font-mono">Rp {calculatePPN().toLocaleString()}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="text-right">
+                                <div className="text-center md:text-right">
                                     <p className="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em] mb-1">Grand Total (Inc. Pajak)</p>
-                                    <p className="text-4xl font-black tracking-tighter text-white">
+                                    <p className="text-2xl md:text-3xl font-black tracking-tighter text-white font-mono">
                                         Rp {calculateGrandTotal().toLocaleString()}
                                     </p>
                                 </div>
@@ -1191,40 +1457,40 @@ export default function OrdersPage() {
                         </div>
                     </div>
 
-                    <div className="flex justify-between items-center pt-6 border-t border-slate-100">
-                        <div className="flex gap-2">
+                    <div className="hidden md:flex flex-col sm:flex-row justify-between items-center gap-6 pt-8 border-t border-slate-100">
+                        <div className="flex flex-wrap justify-center gap-3">
                             {modalMode === 'view' && hasPermission('orders.approve') && (selectedOrderId && (orders.find(o => o.id === selectedOrderId)?.status !== 'APPROVED' || ['administrator', 'it support'].includes(user?.role?.toLowerCase() || ''))) && (
                                 <>
                                     <button
                                         type="button"
                                         onClick={() => handleUpdateStatus(selectedOrderId!, 'REJECTED')}
-                                        className="px-6 py-3 bg-red-50 text-red-600 font-black rounded-xl hover:bg-red-100 transition-all uppercase text-xs tracking-widest flex items-center gap-2"
+                                        className="px-6 md:px-8 py-2.5 md:py-3 bg-red-50 text-red-600 font-black rounded-2xl hover:bg-red-100 transition-all uppercase text-[10px] md:text-xs tracking-widest flex items-center gap-2 active:scale-95 shadow-sm"
                                     >
-                                        <XCircle className="w-4 h-4" /> Reject
+                                        <XCircle className="w-4 h-4 md:w-5 md:h-5" /> Reject
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => handleUpdateStatus(selectedOrderId!, 'PENDING')}
-                                        className="px-6 py-3 bg-blue-50 text-blue-600 font-black rounded-xl hover:bg-blue-100 transition-all uppercase text-xs tracking-widest flex items-center gap-2"
+                                        className="px-6 md:px-8 py-2.5 md:py-3 bg-blue-50 text-blue-600 font-black rounded-2xl hover:bg-blue-100 transition-all uppercase text-[10px] md:text-xs tracking-widest flex items-center gap-2 active:scale-95 shadow-sm"
                                     >
-                                        <AlertCircle className="w-4 h-4" /> Pending
+                                        <AlertCircle className="w-4 h-4 md:w-5 md:h-5" /> Pending
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => handleUpdateStatus(selectedOrderId!, 'APPROVED')}
-                                        className="px-6 py-3 bg-emerald-600 text-white font-black rounded-xl shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all uppercase text-xs tracking-widest flex items-center gap-2"
+                                        className="px-8 md:px-12 py-2.5 md:py-3 bg-emerald-600 text-white font-black rounded-2xl shadow-xl shadow-emerald-200 hover:bg-emerald-700 transition-all uppercase text-[10px] md:text-xs tracking-widest flex items-center gap-2 active:scale-95"
                                     >
-                                        <CheckCircle className="w-4 h-4" /> Approve
+                                        <CheckCircle className="w-4 h-4 md:w-5 md:h-5" /> Approve
                                     </button>
                                 </>
                             )}
                         </div>
 
-                        <div className="flex gap-3">
+                        <div className="flex flex-wrap justify-center gap-3 w-full sm:w-auto">
                             <button
                                 type="button"
                                 onClick={handleCloseModal}
-                                className="px-6 py-3 bg-slate-100 text-slate-600 font-black rounded-xl hover:bg-slate-200 transition-all uppercase text-xs tracking-widest"
+                                className="flex-1 sm:flex-none px-6 md:px-10 py-2.5 md:py-3 bg-slate-100 text-slate-600 font-black rounded-2xl hover:bg-slate-200 transition-all uppercase text-[10px] md:text-xs tracking-widest active:scale-95"
                             >
                                 {modalMode === 'view' ? 'Tutup Pratinjau' : 'Batal'}
                             </button>
@@ -1232,16 +1498,16 @@ export default function OrdersPage() {
                                 <button
                                     type="button"
                                     onClick={() => window.print()}
-                                    className="px-8 py-3 bg-slate-900 text-white font-black rounded-xl shadow-lg hover:bg-black transition-all flex items-center gap-2 uppercase text-xs tracking-widest"
+                                    className="flex-1 sm:flex-none px-6 md:px-12 py-2.5 md:py-3 bg-slate-900 text-white font-black rounded-2xl shadow-xl hover:bg-black transition-all flex items-center justify-center gap-2 uppercase text-[10px] md:text-xs tracking-widest active:scale-95"
                                 >
-                                    <Printer className="w-4 h-4" /> Cetak Formulir
+                                    <Printer className="w-4 h-4 md:w-5 md:h-5" /> Cetak Formulir
                                 </button>
                             )}
                             {modalMode !== 'view' && (
                                 <button
                                     type="button"
                                     onClick={handleSubmitOrder}
-                                    className="px-10 py-3 bg-blue-600 text-white font-black rounded-xl shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition-all active:scale-95 uppercase text-xs tracking-widest"
+                                    className="flex-1 sm:flex-none px-6 md:px-14 py-2.5 md:py-3 bg-blue-600 text-white font-black rounded-2xl shadow-2xl shadow-blue-500/30 hover:bg-blue-700 transition-all active:scale-95 uppercase text-[10px] md:text-xs tracking-widest"
                                 >
                                     {modalMode === 'edit' ? 'Update Pengajuan' : modalMode === 'special' ? 'Ajukan Pesanan Khusus' : 'Ajukan Pemesanan'}
                                 </button>
@@ -1264,7 +1530,7 @@ export default function OrdersPage() {
                         <input
                             type="text"
                             placeholder="Cari nama barang atau kode..."
-                            className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-slate-900 font-bold focus:ring-2 focus:ring-blue-500 transition-all outline-none"
+                            className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl text-slate-900 text-sm md:text-base font-medium focus:ring-2 focus:ring-blue-500 transition-all outline-none shadow-inner"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             autoFocus
@@ -1292,17 +1558,17 @@ export default function OrdersPage() {
                                             className="hover:bg-blue-50/50 cursor-pointer transition-colors group"
                                             onClick={() => handleSelectItem(item)}
                                         >
-                                            <td className="px-6 py-4">
-                                                <div className="font-bold text-slate-900 uppercase tracking-tight">{item.name}</div>
-                                                <div className="text-[10px] font-mono text-slate-400 font-bold">{item.code}</div>
+                                            <td className="px-6 md:px-8 py-5 md:py-6">
+                                                <div className="font-bold text-slate-900 uppercase tracking-tight text-sm md:text-base">{item.name}</div>
+                                                <div className="text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest mt-1">{item.code}</div>
                                             </td>
-                                            <td className="px-6 py-4 text-right font-black text-slate-600 text-sm">
+                                            <td className="px-6 md:px-8 py-5 md:py-6 text-right font-black text-slate-700 text-sm md:text-lg font-mono">
                                                 Rp {item.price?.toLocaleString()}
                                             </td>
-                                            <td className="px-6 py-4 text-center">
+                                            <td className="px-6 md:px-8 py-5 md:py-6 text-center">
                                                 <div className="flex justify-center">
-                                                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all scale-0 group-hover:scale-100">
-                                                        <Plus className="w-4 h-4" />
+                                                    <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-all scale-90 group-hover:scale-110 shadow-sm">
+                                                        <Plus className="w-5 h-5" />
                                                     </div>
                                                 </div>
                                             </td>
@@ -1329,7 +1595,7 @@ export default function OrdersPage() {
                             <select
                                 value={tempSpecialItem.type_id}
                                 onChange={(e) => setTempSpecialItem({ ...tempSpecialItem, type_id: e.target.value })}
-                                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900 font-bold"
+                                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900"
                             >
                                 <option value="">-- Pilih Jenis --</option>
                                 {itemTypes.map(type => (
@@ -1344,7 +1610,7 @@ export default function OrdersPage() {
                                 value={tempSpecialItem.name}
                                 onChange={(e) => setTempSpecialItem({ ...tempSpecialItem, name: e.target.value })}
                                 placeholder="Contoh: ADAPTOR LAPTOP..."
-                                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900 font-bold"
+                                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900"
                             />
                         </div>
                     </div>
@@ -1355,7 +1621,7 @@ export default function OrdersPage() {
                             onChange={(e) => setTempSpecialItem({ ...tempSpecialItem, spec: e.target.value })}
                             placeholder="Contoh: Warna Hitam, Output 19V 3.42A..."
                             rows={3}
-                            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900 font-bold"
+                            className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900"
                         />
                     </div>
                     <div className="space-y-1.5">
@@ -1366,7 +1632,7 @@ export default function OrdersPage() {
                                 type="number"
                                 value={tempSpecialItem.price || ''}
                                 onChange={(e) => setTempSpecialItem({ ...tempSpecialItem, price: Number(e.target.value) })}
-                                className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900 font-bold text-right"
+                                className="w-full pl-12 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-slate-900 text-right"
                             />
                         </div>
                     </div>

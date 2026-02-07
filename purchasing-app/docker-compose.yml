@@ -62,6 +62,21 @@ services:
     networks:
       - purchasing_network
 
+  tracking-service:
+    build: ../tracking-service
+    container_name: tracking-service
+    restart: always
+    ports:
+      - "4003:4003"
+    volumes:
+      - ../tracking-service:/app
+      - /app/node_modules
+    command: npm run dev
+    environment:
+      - PORT=4003
+    networks:
+      - purchasing_network
+
   frontend-app:
     build: ./frontend
     container_name: frontend-app
@@ -77,14 +92,7 @@ services:
     depends_on:
       - master-data-service
       - purchasing-service
-    networks:
-      - purchasing_network
-
-  cloudflare-tunnel:
-    image: cloudflare/cloudflared:latest
-    container_name: cloudflare-tunnel
-    restart: always
-    command: tunnel --no-autoupdate run --token eyJhIjoiY2Q0MzI2YmQ4NTg4YjllYzNlMmVmY2RkNzFkZGY0NGMiLCJ0IjoiNDc3YThiMzQtYWExZi00OTIwLWE0ZTEtMDc2YTBlNzMzMmUxIiwicyI6IlpHSTRNMlJrTkdFdFpqWXhPQzAwWWpRMUxXSXdORGN0T0dGbE5XVTRNekpqWmpFNSJ9
+      - tracking-service
     networks:
       - purchasing_network
 

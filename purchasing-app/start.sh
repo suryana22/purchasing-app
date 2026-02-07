@@ -5,7 +5,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$DIR"
 
 echo "Cleaning up old containers..."
-docker-compose down
+docker-compose down --remove-orphans
 
 echo "Starting Purchasing App Services..."
-docker-compose up --build
+docker-compose up --build --remove-orphans
