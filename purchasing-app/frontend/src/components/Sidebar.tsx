@@ -86,8 +86,6 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
         }
     }, [pathname, isLoaded]); // Removed onClose from dependency to avoid loop if parent component recreation
 
-    if (!isLoaded) return null;
-
     const toggleMenu = (name: string) => {
         setOpenMenus(prev =>
             prev.includes(name)
@@ -119,7 +117,15 @@ export default function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose:
             <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-2 custom-scrollbar">
                 <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] px-4 mb-4">Main Navigation</div>
 
-                {filteredMenuItems.map((item) => (
+                {!isLoaded && (
+                    <div className="px-4 space-y-4 animate-pulse">
+                        {[1, 2, 3].map(i => (
+                            <div key={i} className="h-10 bg-slate-800 rounded-xl"></div>
+                        ))}
+                    </div>
+                )}
+
+                {isLoaded && filteredMenuItems.map((item) => (
                     <div key={item.name} className="space-y-1">
                         {item.children ? (
                             <div>
